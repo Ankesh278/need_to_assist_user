@@ -1,0 +1,62 @@
+name: need_to_assist
+description: "A new Flutter project."
+publish_to: 'none'
+
+
+version: 1.0.0+1
+
+environment:
+  sdk: ^3.6.1
+
+dependencies:
+  flutter:
+    sdk: flutter
+  cupertino_icons: ^1.0.8
+  flutter_screenutil: ^5.9.3
+  provider: ^6.1.2
+  firebase_core: ^3.10.1
+  firebase_auth: ^5.4.1
+  google_maps_flutter: ^2.10.0
+  http: ^1.3.0
+  geolocator: ^13.0.2
+  geocoding: ^3.0.0
+  permission_handler: ^11.3.1
+  cloud_firestore: ^5.6.2
+  cached_network_image: ^3.4.1
+
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^5.0.0
+  flutter_launcher_icons: ^0.14.3
+
+flutter_launcher_icons:
+  android: "launcher_icon"
+
+  image_path: "assets/icon/icon.png"
+
+flutter:
+
+  uses-material-design: true
+
+  assets:
+    - assets/images/home_screen/services/
+    - assets/images/home_screen/repairing/
+    - assets/images/home_screen/card1/
+    - assets/images/home_screen/card2/
+    - assets/images/home_screen/navigation_icon/
+    - assets/images/login_screen/
+    - assets/images/map_screen/
+    - assets/images/splash_screen/
+    - assets/images/booking_screen/card1/
+    - assets/icon/icon.png
+    - assets/images/profile_screen/
+    - assets/images/profile_screen/leading_icon/
+    - assets/images/payment_screen/
+    - assets/images/details_screen/
+    - assets/images/default.png
+  fonts:
+   - family: Inter
+     fonts:
+       - asset: assets/fonts/inter.ttf

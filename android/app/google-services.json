@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "16762180599",
+    "project_id": "needtoassist-aba01",
+    "storage_bucket": "needtoassist-aba01.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:16762180599:android:7baa5a3bbb98bf20bb14f2",
+        "android_client_info": {
+          "package_name": "com.example.need_to_assist"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCy91JDAg5PxItAS1Ksm2QqpC_zN2WM7ak"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
