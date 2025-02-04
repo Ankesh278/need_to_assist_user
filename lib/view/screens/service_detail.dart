@@ -19,8 +19,6 @@ class ServiceDetail extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final productProvider = Provider.of<ProductProvider>(context);
-    final categoryProvider = Provider.of<CategoryProvider>(context);
-
     return Scaffold(
       backgroundColor: ColorUtils.background,
       body: SafeArea(
