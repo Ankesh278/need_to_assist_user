@@ -159,14 +159,6 @@ class DetailScreen extends StatelessWidget {
                               fontSize: 16.sp,
                               fontWeight: FontWeight.w600,)),
                         ..._buildDisclaimer(),
-
-                        PositionedWidget(top:1880.h,
-                            left:17.w, width: 230.w,
-                            height: 20.h, child:CustomText(
-                              text: 'Disclaimer for Repair Services' ,
-                              fontSize: 16.sp,
-                              fontWeight: FontWeight.w600,)),
-                        ..._buildDisclaimer(),
                         PositionedWidget(top:2410.h,
                             left:0.w, width: 390.w,
                             height: 105.h, child:Container(

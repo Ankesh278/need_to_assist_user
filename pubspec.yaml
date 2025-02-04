@@ -22,7 +22,9 @@ dependencies:
   geocoding: ^3.0.0
   permission_handler: ^11.3.1
   cloud_firestore: ^5.6.2
-  cached_network_image: ^3.4.1
+  shared_preferences: ^2.5.1
+
+
 
 
 dev_dependencies:
@@ -50,7 +52,6 @@ flutter:
     - assets/images/map_screen/
     - assets/images/splash_screen/
     - assets/images/booking_screen/card1/
-    - assets/icon/icon.png
     - assets/images/profile_screen/
     - assets/images/profile_screen/leading_icon/
     - assets/images/payment_screen/

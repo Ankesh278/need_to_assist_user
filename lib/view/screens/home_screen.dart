@@ -68,9 +68,30 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> {
 
 
+  late List<Map<String, dynamic>> cardData = [];
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    final productProvider = Provider.of<ProductProvider>(context, listen: false);
+
+    if (cardData.isEmpty && productProvider.products.isNotEmpty) {
+      setState(() {
+        cardData = productProvider.products.map((product) {
+          return {
+            'rating': 4.79,
+            'value': '(1.5k)',
+            'isAdded': false,
+            'quantity': 1,
+            'cost': double.parse(product.price),
+          };
+        }).toList();
+      });
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
-    print('build');
     final categoryProvider = Provider.of<CategoryProvider>(context);
     final productProvider = Provider.of<ProductProvider>(context);
     return Scaffold(
@@ -177,31 +198,43 @@ class _HomePageState extends State<HomePage> {
                           child: Column(
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
-                              Container(
-                                width: 80.w,
-                                height: 80.h,
-                                decoration: BoxDecoration(
-                                  borderRadius: BorderRadius.circular(50),
-                                  boxShadow: [
-                                    BoxShadow(
-                                      blurRadius: 1,
-                                      spreadRadius: 1,
-                                      color: Colors.grey.shade300,
-                                    ),
-                                  ],
-                                  color: ColorUtils.background,
-                                ),
-                                child: Center(
-                                  child: ClipOval(
-                                    child: Image.network(
-                                      category.categoryImage,
-                                      fit: BoxFit.cover,
-                                      errorBuilder: (context, error, stackTrace) {
-                                        return Image.asset(
-                                          'assets/images/default.png',
-                                          fit: BoxFit.cover,
-                                        );
-                                      },
+                              GestureDetector(
+                                onTap: () {
+                                  Provider.of<NavigationProvider>(context, listen: false).navigateTo(
+                                    '/service',
+                                    arguments: {
+                                      'cardData': cardData[index],
+                                      'product': productProvider.products[index],
+                                      'category': categoryProvider.categories[index],
+                                    },
+                                  );
+                        },
+                                child: Container(
+                                  width: 80.w,
+                                  height: 80.h,
+                                  decoration: BoxDecoration(
+                                    borderRadius: BorderRadius.circular(50),
+                                    boxShadow: [
+                                      BoxShadow(
+                                        blurRadius: 1,
+                                        spreadRadius: 1,
+                                        color: Colors.grey.shade300,
+                                      ),
+                                    ],
+                                    color: ColorUtils.background,
+                                  ),
+                                  child: Center(
+                                    child: ClipOval(
+                                      child: Image.network(
+                                        category.categoryImage,
+                                        fit: BoxFit.cover,
+                                        errorBuilder: (context, error, stackTrace) {
+                                          return Image.asset(
+                                            'assets/images/default.png',
+                                            fit: BoxFit.cover,
+                                          );
+                                        },
+                                      ),
                                     ),
                                   ),
                                 ),
@@ -367,10 +400,17 @@ class _HomePageState extends State<HomePage> {
                               Icon(Icons.star, color: Color(0xff5A5A5A), size: 18.sp),
                               SizedBox(width: 4.w),
                               CustomText(
-                                text: '4.5 (1.5k)',
+                                text:cardData[index]['rating'].toString() ,
                                 fontWeight: FontWeight.w400,
                                 fontSize: 10.sp,
                               ),
+                              SizedBox(width: 2),
+                              CustomText(
+                                text: cardData[index]['value'].toString(),
+                                fontWeight: FontWeight.w400,
+                                fontSize: 10.sp,
+                              ),
+
                             ],
                           ),
                         ),

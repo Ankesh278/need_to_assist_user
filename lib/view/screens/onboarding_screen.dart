@@ -4,6 +4,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:need_to_assist/view/widgets/custom_position_widget.dart';
 import 'package:provider/provider.dart';
 import '../../core/constants/app_colors.dart';
+import '../../providers/auth_provider.dart';
 import '../../providers/navigation_provider.dart';
 import '../../providers/onboarding_provider.dart';
 import '../widgets/custom_text_widget.dart';
@@ -78,7 +79,17 @@ class OnboardingScreen extends StatelessWidget {
                   child: GestureDetector(
                       onTap:(){
                         FocusScope.of(context).unfocus();
+                        final authProvider = Provider.of<AuthProvider>(context, listen: false);
                         Provider.of<NavigationProvider>(context, listen: false).navigateTo('/login');
+                        if (authProvider.isLoggedIn  ) {
+                          // Navigate directly to home if the user is already logged in
+                          Provider.of<NavigationProvider>(context, listen: false).navigateTo('/home');
+                        }
+                        else {
+                          // Navigate to login if the user is not logged in
+                          Provider.of<NavigationProvider>(context, listen: false).navigateTo('/login');
+                        }
+                        authProvider.phoneController.clear();
                          },child: Image.asset('assets/images/splash_screen/Back_Arrow.png'))
               ),
 

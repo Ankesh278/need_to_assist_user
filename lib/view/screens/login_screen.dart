@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:need_to_assist/view/widgets/custom_position_widget.dart';
 import 'package:need_to_assist/view/widgets/custom_text_widget.dart';
@@ -93,6 +94,10 @@ class _LoginPageState extends State<LoginPage> {
                               ),
                             ),
                             keyboardType: TextInputType.number,
+                            inputFormatters: [
+                              FilteringTextInputFormatter.digitsOnly, // Only allow numbers
+                              LengthLimitingTextInputFormatter(10),   // Limit to 10 digits
+                            ],
                             validator: (value) {
                               if (value == null || value.isEmpty || !RegExp(r'^\d{10,15}$').hasMatch(value)) {
                                 return 'Enter a valid phone number';
@@ -113,8 +118,15 @@ class _LoginPageState extends State<LoginPage> {
                   height: 38.h,
                   child: GestureDetector(
                     onTap: () async {
-                      final phoneNumber = "+91${authProvider.phoneController.text.trim()}";
-                      await authProvider.sendOTP(phoneNumber);
+                      final phoneNumber = authProvider.phoneController.text.trim();
+                      if (phoneNumber.isEmpty || !RegExp(r'^\d{10}$').hasMatch(phoneNumber)) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(content: Text('Enter a valid 10-digit phone number')),
+                        );
+                        return;
+                      }
+                      final fullPhoneNumber = "+91${authProvider.phoneController.text.trim()}";
+                      await authProvider.sendOTP(fullPhoneNumber);
                       navigationProvider.navigateTo('/otp', arguments: {'phoneNumber': phoneNumber});
                     },
                     child: Container(

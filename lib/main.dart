@@ -5,7 +5,6 @@ import 'package:need_to_assist/providers/auth_provider.dart';
 import 'package:need_to_assist/providers/map_provider.dart';
 import 'package:need_to_assist/providers/navigation_provider.dart';
 import 'package:need_to_assist/providers/onboarding_provider.dart';
-import 'package:need_to_assist/providers/user_provider.dart';
 import 'package:need_to_assist/view/screens/booking_screen.dart';
 import 'package:need_to_assist/view/screens/detail_screen.dart';
 import 'package:need_to_assist/view/screens/home_screen.dart';
@@ -19,6 +18,7 @@ import 'package:need_to_assist/view/screens/payment_screen.dart';
 import 'package:need_to_assist/view/screens/profile_screen.dart';
 import 'package:need_to_assist/view/screens/registration.dart';
 import 'package:need_to_assist/view/screens/search_screen.dart';
+import 'package:need_to_assist/view/screens/service_detail.dart';
 import 'package:provider/provider.dart';
 import 'core/config/firebase_options.dart';
 import 'providers/category_provider.dart';
@@ -73,6 +73,15 @@ class MyApp extends StatelessWidget {
 
               case '/home':
                 return MaterialPageRoute(builder: (_) =>  HomeScreen());
+              case '/service':
+                final args = settings.arguments as Map<String, dynamic>;
+                return MaterialPageRoute(
+                  builder: (_) => ServiceDetail(
+                    cardData: args['cardData'],
+                    product: args['product'],
+                    category: args['category'],
+                  ),
+                );
 
               case '/map':
                 return MaterialPageRoute(builder: (_) => const MapSample());

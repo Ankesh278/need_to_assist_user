@@ -58,7 +58,7 @@ class Registration extends StatelessWidget {
       PositionedWidget(top: 664.h, left: 75.w, width: 240.w, height: 49.h, child: GestureDetector(
           onTap: () async{
             await saveUserDataToFirestore();
-            Provider.of<NavigationProvider>(context, listen: false).navigateTo(
+            Provider.of<NavigationProvider>(context, listen: false).navigateAndRemoveUntil(
                 '/home',);
           },
       child: Container(

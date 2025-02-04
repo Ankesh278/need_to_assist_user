@@ -6,8 +6,29 @@ import 'package:flutter/material.dart';
   String? _verificationId;
   bool _isResendEnabled = false; // ✅ Track OTP Resend State
   TextEditingController phoneController=TextEditingController();
+  bool get isLoggedIn => _auth.currentUser != null;
 
   bool get isResendEnabled => _isResendEnabled;
+  Future<void> logout(BuildContext context) async {
+    try {
+      await _auth.signOut();
+      notifyListeners(); // Notify UI of changes
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Error logging out: ${e.toString()}')),
+      );
+    }
+  }
+  User? _user;
+  User? get user => _user;
+
+  AuthProvider() {
+    _auth.authStateChanges().listen((User? user) {
+      _user = user;
+      notifyListeners(); // Update UI whenever auth state changes
+    });
+  }
+
 
   Future<void> sendOTP(String phoneNumber, {Function(String)? onCodeSent, Function(String)? onError}) async {
   if (phoneNumber.isEmpty || phoneNumber.length < 10) {

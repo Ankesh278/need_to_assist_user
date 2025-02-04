@@ -5,6 +5,7 @@ import 'package:need_to_assist/view/widgets/custom_position_widget.dart';
 import 'package:need_to_assist/view/widgets/custom_text_widget.dart';
 import 'package:provider/provider.dart';
 
+import '../../providers/auth_provider.dart';
 import '../widgets/custom_listTile.dart';
 
 class ProfileScreen extends StatelessWidget {
@@ -113,7 +114,8 @@ class ProfileScreen extends StatelessWidget {
     height: 45.h,
     child:GestureDetector(
       onTap: (){
-Provider.of<NavigationProvider>(context,listen:false).navigateTo('/login');
+Provider.of<AuthProvider>(context,listen:false).logout(context);
+Provider.of<NavigationProvider>(context,listen:false).navigateAndRemoveUntil('/login');
       },
       child: Container(decoration: BoxDecoration(borderRadius: BorderRadius.circular(5.r),color: Color(0xffffffff),boxShadow: [BoxShadow(
       color: Colors.black12,blurRadius:2,offset: Offset(0,2),spreadRadius: 1

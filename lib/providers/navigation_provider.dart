@@ -3,13 +3,31 @@ import 'package:flutter/material.dart';
 class NavigationProvider extends ChangeNotifier {
   final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
 
+  /// Navigate to a new screen
   void navigateTo(String routeName, {Object? arguments}) {
-    navigatorKey.currentState?.pushNamed(routeName, arguments: arguments);
+    if (navigatorKey.currentState != null) {
+      navigatorKey.currentState!.pushNamed(routeName, arguments: arguments);
+    }
   }
 
-  void goBack() {
-    navigatorKey.currentState?.pop();
+  /// Navigate to a new screen and remove previous screens from the stack
+  void navigateAndRemoveUntil(String routeName) {
+    if (navigatorKey.currentState != null) {
+      navigatorKey.currentState!.pushNamedAndRemoveUntil(
+        routeName,
+            (route) => false, // Removes all previous routes
+      );
+    }
   }
+
+  /// Navigate back if possible
+  void goBack() {
+    if (navigatorKey.currentState?.canPop() ?? false) {
+      navigatorKey.currentState!.pop();
+    }
+  }
+
+  /// Selected index for bottom navigation or tab bar
   int _selectedIndex = 0;
   int get selectedIndex => _selectedIndex;
 
@@ -17,6 +35,4 @@ class NavigationProvider extends ChangeNotifier {
     _selectedIndex = index;
     notifyListeners();
   }
-
 }
-

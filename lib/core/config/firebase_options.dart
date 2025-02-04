@@ -50,19 +50,19 @@ class DefaultFirebaseOptions {
   }
 
   static const FirebaseOptions android = FirebaseOptions(
-    apiKey: 'AIzaSyCy91JDAg5PxItAS1Ksm2QqpC_zN2WM7ak',
-    appId: '1:16762180599:android:7baa5a3bbb98bf20bb14f2',
-    messagingSenderId: '16762180599',
-    projectId: 'needtoassist-aba01',
-    storageBucket: 'needtoassist-aba01.firebasestorage.app',
+    apiKey: 'AIzaSyCLUpBtDE0Cbbbd4PjLzhlbCaWrxoLYDBo',
+    appId: '1:95510351352:android:2ad6ea8d87772ec45c5a0d',
+    messagingSenderId: '95510351352',
+    projectId: 'needtoassist-d9f52',
+    storageBucket: 'needtoassist-d9f52.firebasestorage.app',
   );
 
   static const FirebaseOptions ios = FirebaseOptions(
-    apiKey: 'AIzaSyCH006hl1YRnaiIr8OfVpihZfT6mTUomEE',
-    appId: '1:16762180599:ios:54c0168258a02160bb14f2',
-    messagingSenderId: '16762180599',
-    projectId: 'needtoassist-aba01',
-    storageBucket: 'needtoassist-aba01.firebasestorage.app',
+    apiKey: 'AIzaSyDky5sfKiaO3s9c4n0Mw1u6jXYpHsVxmMQ',
+    appId: '1:95510351352:ios:e28d405cf471f67c5c5a0d',
+    messagingSenderId: '95510351352',
+    projectId: 'needtoassist-d9f52',
+    storageBucket: 'needtoassist-d9f52.firebasestorage.app',
     iosBundleId: 'com.example.needToAssist',
   );
 }
