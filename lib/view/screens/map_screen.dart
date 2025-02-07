@@ -1,48 +1,58 @@
-import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
-import 'package:geolocator/geolocator.dart';
-import 'package:permission_handler/permission_handler.dart';
+import 'package:need_to_assist/core/constants/app_colors.dart';
 import 'package:provider/provider.dart';
 
-import '../../providers/map_provider.dart';
+import '../../providers/location_provider.dart';
 import '../../providers/navigation_provider.dart';
 import '../widgets/custom_position_widget.dart';
 import '../widgets/custom_text_widget.dart';
 
-class MapSample extends StatelessWidget {
+class MapSample extends StatefulWidget {
+
   const MapSample({super.key});
 
   @override
+  State<MapSample> createState() => _MapSampleState();
+}
+
+class _MapSampleState extends State<MapSample> {
+  GoogleMapController?  _mapController;
+
+  @override
+  void initState() {
+    super.initState();
+    Provider.of<LocationProvider>(context, listen: false).loadSavedLocation();
+  }
+
+  @override
   Widget build(BuildContext context) {
-    print('hello');
+    final locationProvider = Provider.of<LocationProvider>(context);
     return Scaffold(
+      backgroundColor: ColorUtils.background,
       body:
       SafeArea(
           child: Stack(
             children: [
-              Consumer<MapProvider>(
-                builder: (context, mapProvider, child) {
-                  return PositionedWidget(
+               PositionedWidget(
                     top: 0.h,
                     left: 0.w,
                     width: 393.w,
                     height: 758.h,
                     child: GoogleMap(
-                      mapType: MapType.normal,
                       initialCameraPosition: CameraPosition(
-                        target: mapProvider.currentPosition,
-                        zoom: 14.0,
+                        target: locationProvider.currentPosition ?? LatLng(28.6161, 77.1014), // Default to SF
+                        zoom: 16.0,
                       ),
                       myLocationEnabled: true,
-                      myLocationButtonEnabled: true,
+                      markers: locationProvider.marker != null
+                          ? {locationProvider.marker!}
+                          : {},
                       onMapCreated: (GoogleMapController controller) {
-                        mapProvider.setMapController(controller);
+                        _mapController = controller;
                       },
                     ),
-                  );
-                },
               ),
               PositionedWidget(top: 564.h,left: 0,width: 390.w,height: 280.h,
                   child:Container(
@@ -52,32 +62,29 @@ class MapSample extends StatelessWidget {
               PositionedWidget(top: 636.h, left: 74.w, width:242.w, height: 18.h, child: CustomText(text: 'Where do you want your service?',fontWeight:FontWeight.w600 ,fontSize: 15.sp,)),
 
               // "At My Current Location" Button (Only rebuilds if location updates)
-              Consumer<MapProvider>(
-                builder: (context, mapProvider, child) {
-                  return PositionedWidget(
-                    top: 682.h,
-                    left: 12.w,
-                    width: 366.w,
-                    height: 50.h,
-                    child: ElevatedButton(
-                      onPressed: () {
-                        mapProvider.getUserLocation();
-                      },
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Color(0xff5A5A5A),
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(6)),
-                      ),
-                      child: CustomText(
-                        text: mapProvider.locationFetched
-                            ? 'Location Updated'
-                            : 'At my current location',
-                        fontWeight: FontWeight.w700,
-                        fontSize: 15.sp,
-                        color: Colors.white,
-                      ),
-                    ),
-                  );
-                },
+              PositionedWidget(
+                top: 682.h,
+                left: 12.w,
+                width: 366.w,
+                height: 50.h,
+                child: ElevatedButton(
+                  onPressed: () async{
+                    await locationProvider.getCurrentLocation(context);
+                    if (locationProvider.currentPosition != null) {
+                      _mapController?.animateCamera(CameraUpdate.newLatLng(locationProvider.currentPosition!));
+                    }
+                  },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Color(0xff5A5A5A),
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(6)),
+                  ),
+                  child: CustomText(
+                    text: 'Get Current Location',
+                    fontWeight: FontWeight.w700,
+                    fontSize: 15.sp,
+                    color: Colors.white,
+                  ),
+                ),
               ),
               PositionedWidget(top: 745.h, left: 12.w, width: 366.w, height: 50.h, child: ElevatedButton(
                   onPressed: (){

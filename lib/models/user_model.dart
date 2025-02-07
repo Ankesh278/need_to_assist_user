@@ -1,8 +1,20 @@
+import 'package:hive/hive.dart';
+
+part 'user_model.g.dart'; // This will be generated
+
+@HiveType(typeId: 0)
 class UserModel {
-  String name;
-  String email;
-  String address;
-  String phoneNumber;
+  @HiveField(0)
+  final String name;
+
+  @HiveField(1)
+  final String email;
+
+  @HiveField(2)
+  final String address;
+
+  @HiveField(3)
+  final String phoneNumber;
 
   UserModel({
     required this.name,
@@ -11,6 +23,15 @@ class UserModel {
     required this.phoneNumber,
   });
 
+  factory UserModel.fromMap(Map<String, dynamic> map) {
+    return UserModel(
+      name: map['name'] ?? '',
+      email: map['email'] ?? '',
+      address: map['address'] ?? '',
+      phoneNumber: map['phoneNumber'] ?? '',
+    );
+  }
+
   Map<String, dynamic> toMap() {
     return {
       'name': name,
@@ -18,14 +39,5 @@ class UserModel {
       'address': address,
       'phoneNumber': phoneNumber,
     };
-  }
-
-  factory UserModel.fromMap(Map<String, dynamic> map) {
-    return UserModel(
-      name: map['name'],
-      email: map['email'],
-      address: map['address'],
-      phoneNumber: map['phoneNumber'],
-    );
   }
 }

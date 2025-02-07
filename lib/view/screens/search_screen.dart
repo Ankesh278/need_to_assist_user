@@ -1,16 +1,21 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:uuid/uuid.dart';
+import  'package:http/http.dart' as http;
 import '../../core/constants/app_colors.dart';
 import '../../core/utils/keyboard_utils.dart';
 import '../widgets/custom_position_widget.dart';
 import '../widgets/custom_text_formfield.dart';
 
-class SearchScreen extends StatelessWidget {
-  const SearchScreen({super.key});
 
+class SearchScreen extends StatelessWidget {
+   SearchScreen({super.key});
+TextEditingController searchController=TextEditingController();
   @override
   Widget build(BuildContext context) {
-    TextEditingController searchController=TextEditingController();
+
     return GestureDetector(
       behavior: HitTestBehavior.opaque,
       onTap: (){

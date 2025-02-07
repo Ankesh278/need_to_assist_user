@@ -6,18 +6,19 @@ import 'package:need_to_assist/view/widgets/custom_position_widget.dart';
 import 'package:provider/provider.dart';
 import '../../core/constants/app_colors.dart';
 import '../../providers/category_provider.dart';
+import '../../providers/location_provider.dart';
 import '../../providers/navigation_provider.dart';
 import '../../providers/product_provider.dart';
-
 import '../widgets/custom_text_widget.dart';
 
 class HomeScreen extends StatelessWidget {
+
   HomeScreen({super.key});
   @override
   Widget build(BuildContext context) {
     final List<Widget> _screens = [
       const HomePage(),
-      const SearchScreen(),
+      SearchScreen(),
       const NotificationScreen(),
     ];
     final navigationProvider = Provider.of<NavigationProvider>(context);
@@ -69,6 +70,11 @@ class _HomePageState extends State<HomePage> {
 
 
   late List<Map<String, dynamic>> cardData = [];
+  void initState() {
+    super.initState();
+    Provider.of<LocationProvider>(context, listen: false).loadSavedLocation();
+
+  }
 
   @override
   void didChangeDependencies() {
@@ -92,6 +98,7 @@ class _HomePageState extends State<HomePage> {
 
   @override
   Widget build(BuildContext context) {
+    final locationProvider = Provider.of<LocationProvider>(context);
     final categoryProvider = Provider.of<CategoryProvider>(context);
     final productProvider = Provider.of<ProductProvider>(context);
     return Scaffold(
@@ -103,44 +110,34 @@ class _HomePageState extends State<HomePage> {
               child: Container(decoration: BoxDecoration(
                 borderRadius: BorderRadius.only(bottomLeft: Radius.circular(30),bottomRight: Radius.circular(30)),
                 color: Color(0xffF9F9F9),))),
-          PositionedWidget(
-            top: 9.h,
-            left: 4.w,
-            width: 30.w,height: 30.h,
-            child: IconButton(
-              icon: Icon(Icons.arrow_back_ios_new_sharp,),
-              onPressed: () {
-                Navigator.pop(context);
+          Positioned(
+              top: 18.h,
+              left: 20.w,
+              child:InkWell(onTap: (){
+                Provider.of<NavigationProvider>(context, listen: false).navigateTo(
+                '/map');
+
               },
-            ),
+                  child: Icon(Icons.maps_home_work))
           ),
           PositionedWidget(
-              top: 23.h,
-              left: 50.w,
-              width: 10.w,height: 10.h,
-              child:Image.asset('assets/images/home_screen/card1/locator.png',)
-          ),
-          PositionedWidget(
-              top: 21.h,
-              left: 65.w,
-              width:88.w, height: 14.h,
+              top: 18.h,
+              left: 60.w,
+              width:170.w, height: 40.h,
               child: CustomText(
-                text: 'Guru Nanak Nagar',
-                fontWeight:FontWeight.w400 ,
-                fontSize: 10.sp,)),
-          PositionedWidget(
+                text: locationProvider.currentAddress,maxLines: 2,
+                fontWeight:FontWeight.w600 ,
+                fontSize: 16.sp,)),
+          Positioned(
               top: 16.h,
               left: 340.w,
-              width: 40.w,height: 40.h,
-              child:GestureDetector(
+              child:InkWell(
                 onTap: (){
                   Provider.of<NavigationProvider>(context, listen: false).navigateTo(
                     '/profile',
                   );
-
                 },
-                  child: SizedBox(width: 40,height: 40 ,
-                      child: Image.asset('assets/images/home_screen/card1/customer_care.png',)))
+                  child: Icon(Icons.person,size: 30,))
           ),
           PositionedWidget(
               top: 97.h,
@@ -150,10 +147,10 @@ class _HomePageState extends State<HomePage> {
                 text: '"Expert laptop repair services for all brands and issues."',
                 fontWeight:FontWeight.w600 ,textAlign: TextAlign.start,
                 fontSize: 17.sp,)),
-          PositionedWidget(
-              top: 25.h,
+          Positioned(
+              top: 50.h,
               left: 182.w,
-              width: 208.w,height: 208.h,
+              width: 208.w,height: 180.h,
               child:Image.asset('assets/images/home_screen/card1/home1.png',)
           ),
           PositionedWidget(
@@ -169,7 +166,8 @@ class _HomePageState extends State<HomePage> {
             left: 6.w,
             width: 379.w,
             height: 140.h,
-            child: Container(
+            child:
+            Container(
               padding: EdgeInsets.symmetric(vertical: 10.h, horizontal: 5.w), // Added padding
               decoration: BoxDecoration(
                 color: Color(0xffF5F5F5),
@@ -203,9 +201,7 @@ class _HomePageState extends State<HomePage> {
                                   Provider.of<NavigationProvider>(context, listen: false).navigateTo(
                                     '/service',
                                     arguments: {
-                                      'cardData': cardData[index],
-                                      'product': productProvider.products[index],
-                                      'category': categoryProvider.categories[index],
+                                      'selectedCategory': category.categoryName,
                                     },
                                   );
                         },
@@ -258,7 +254,8 @@ class _HomePageState extends State<HomePage> {
           Positioned(
             top: 410.h,
             left: 8.w,
-            child: SizedBox(
+            child:
+            SizedBox(
               width: 370.w, // Adjusted width to fit within the screen properly
               height: 150.h, // Ensures proper height for ListView
               child: categoryProvider.isLoading
@@ -334,7 +331,8 @@ class _HomePageState extends State<HomePage> {
             left: 19.w,
             width: 352.w,
             height: 200.h,
-            child: productProvider.isLoading
+            child:
+            productProvider.isLoading
                 ? Center(child: CircularProgressIndicator())
                 : productProvider.products.isEmpty
                 ? Center(child: Text('No products found'))
@@ -353,7 +351,8 @@ class _HomePageState extends State<HomePage> {
                   final product = productProvider.products[index];
                   return Padding(
                     padding: EdgeInsets.symmetric(vertical: 10.h, horizontal: 1.w),
-                    child: Stack(
+                    child:
+                    Stack(
                       children: [
                         Container(
                           width: 352.w,
@@ -377,7 +376,7 @@ class _HomePageState extends State<HomePage> {
                             borderRadius: BorderRadius.circular(9.r),
                             child: Image.network(
                               product.productImage,
-                              fit: BoxFit.cover,
+                              fit: BoxFit.contain,
                               errorBuilder: (context, error, stackTrace) =>
                                   Image.asset('assets/images/default.png', fit: BoxFit.cover),
                             ),

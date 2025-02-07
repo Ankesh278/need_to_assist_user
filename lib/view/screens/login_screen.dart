@@ -34,7 +34,7 @@ class _LoginPageState extends State<LoginPage> {
                 color: Colors.transparent,
                 child: Stack(
                   children: [
-                    PositionedWidget(top: 42.h, left: 312.w, width:40.w, height: 25.h, child: GestureDetector(
+                    PositionedWidget(top: 42.h, left: 325.w, width:40.w, height: 25.h, child: GestureDetector(
                         onTap: (){
                           Provider.of<NavigationProvider>(context, listen: false).navigateTo(
                             '/map',
