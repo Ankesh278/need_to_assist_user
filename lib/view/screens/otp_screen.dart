@@ -60,7 +60,7 @@ class _OtpScreenState extends State<OtpScreen> {
     final isSuccess = await authProvider.verifyOTP(otp);
 
     if (isSuccess) {
-      Provider.of<NavigationProvider>(context, listen: false).navigateTo('/registration');
+      Provider.of<NavigationProvider>(context, listen: false).navigateTo('/home');
     }
 
     ScaffoldMessenger.of(context).showSnackBar(
@@ -178,7 +178,6 @@ class _OtpScreenState extends State<OtpScreen> {
               GestureDetector(
                 onTap: (){
                   verifyOtp();
-                  Provider.of<NavigationProvider>(context, listen: false).navigateTo('/registration');
                 },
                 child: Container(
                 decoration: BoxDecoration(borderRadius: BorderRadius.circular(20),border: Border.all(width: 1.sp),color: Color(0xff5A5A5A),),

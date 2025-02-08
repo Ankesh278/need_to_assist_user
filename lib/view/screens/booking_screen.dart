@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:provider/provider.dart';
@@ -7,14 +9,15 @@ import '../widgets/custom_position_widget.dart';
 import '../widgets/custom_text_widget.dart';
 
 class BookingScreen extends StatefulWidget {
-  const BookingScreen({super.key});
+
+
+  const BookingScreen({super.key,});
 
   @override
   State<BookingScreen> createState() => _BookingScreenState();
 }
 
 class _BookingScreenState extends State<BookingScreen> {
-
   late List<Map<String, dynamic>> cardData = [];
 
   double totalCost = 0;

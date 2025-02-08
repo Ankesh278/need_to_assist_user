@@ -79,7 +79,7 @@ class OnboardingScreen extends StatelessWidget {
                       onTap:(){
                         FocusScope.of(context).unfocus();
                         final authProvider = Provider.of<AuthProvider>(context, listen: false);
-                        Provider.of<NavigationProvider>(context, listen: false).navigateTo('/login');
+
                         if (authProvider.isLoggedIn  ) {
                           // Navigate directly to home if the user is already logged in
                           Provider.of<NavigationProvider>(context, listen: false).navigateTo('/home');
@@ -89,7 +89,8 @@ class OnboardingScreen extends StatelessWidget {
                           Provider.of<NavigationProvider>(context, listen: false).navigateTo('/login');
                         }
                         authProvider.phoneController.clear();
-                         },child: Image.asset('assets/images/splash_screen/Back_Arrow.png'))
+                         },
+                      child: Image.asset('assets/images/splash_screen/Back_Arrow.png'))
               ),
 
             ]

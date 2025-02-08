@@ -1,3 +1,4 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:need_to_assist/view/screens/notification_screen.dart';
@@ -9,6 +10,7 @@ import '../../providers/category_provider.dart';
 import '../../providers/location_provider.dart';
 import '../../providers/navigation_provider.dart';
 import '../../providers/product_provider.dart';
+import '../../providers/service_provider.dart';
 import '../widgets/custom_text_widget.dart';
 
 class HomeScreen extends StatelessWidget {
@@ -19,12 +21,13 @@ class HomeScreen extends StatelessWidget {
     final List<Widget> _screens = [
       const HomePage(),
       SearchScreen(),
-      const NotificationScreen(),
+       NotificationScreen(),
     ];
     final navigationProvider = Provider.of<NavigationProvider>(context);
     return Scaffold(
       body: _screens[navigationProvider.selectedIndex], // Dynamically switch between screens
-      bottomNavigationBar: BottomNavigationBar(iconSize: 40,
+      bottomNavigationBar:
+      BottomNavigationBar(iconSize: 40,
         backgroundColor: ColorUtils.background,
         currentIndex: navigationProvider.selectedIndex,
         selectedItemColor: Colors.black,
@@ -73,6 +76,7 @@ class _HomePageState extends State<HomePage> {
   void initState() {
     super.initState();
     Provider.of<LocationProvider>(context, listen: false).loadSavedLocation();
+    Provider.of<ServiceProvider>(context, listen: false).fetchServices();
 
   }
 
@@ -100,14 +104,17 @@ class _HomePageState extends State<HomePage> {
   Widget build(BuildContext context) {
     final locationProvider = Provider.of<LocationProvider>(context);
     final categoryProvider = Provider.of<CategoryProvider>(context);
-    final productProvider = Provider.of<ProductProvider>(context);
+    final serviceProvider = Provider.of<ServiceProvider>(context);
     return Scaffold(
       backgroundColor: ColorUtils.background,
       body: SafeArea(
         child:
-        Stack(children: [
-          PositionedWidget(top:0.h,left: 0.w,width: 390.w,height: 212.h,
-              child: Container(decoration: BoxDecoration(
+        Stack(
+          children: [
+          PositionedWidget(
+              top:0.h,left: 0.w,width: 390.w,height: 212.h,
+              child: Container(
+                  decoration: BoxDecoration(
                 borderRadius: BorderRadius.only(bottomLeft: Radius.circular(30),bottomRight: Radius.circular(30)),
                 color: Color(0xffF9F9F9),))),
           Positioned(
@@ -123,11 +130,17 @@ class _HomePageState extends State<HomePage> {
           PositionedWidget(
               top: 18.h,
               left: 60.w,
-              width:170.w, height: 40.h,
-              child: CustomText(
-                text: locationProvider.currentAddress,maxLines: 2,
-                fontWeight:FontWeight.w600 ,
-                fontSize: 16.sp,)),
+              width:170.w, height: 50.h,
+              child: InkWell(
+                onTap: (){
+                  Provider.of<NavigationProvider>(context, listen: false).navigateTo(
+                      '/map');
+                },
+                child: CustomText(
+                  text: locationProvider.currentAddress,maxLines: 2,
+                  fontWeight:FontWeight.w600 ,
+                  fontSize: 16.sp,),
+              )),
           Positioned(
               top: 16.h,
               left: 340.w,
@@ -181,7 +194,8 @@ class _HomePageState extends State<HomePage> {
                 borderRadius: BorderRadius.circular(10.r),
                 child: Align(
                   alignment: Alignment.center,
-                  child: ListView.builder(
+                  child:
+                  ListView.builder(
                     scrollDirection: Axis.horizontal,
                     physics: BouncingScrollPhysics(),
                     itemCount: categoryProvider.categories.length,
@@ -197,14 +211,10 @@ class _HomePageState extends State<HomePage> {
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
                               GestureDetector(
-                                onTap: () {
-                                  Provider.of<NavigationProvider>(context, listen: false).navigateTo(
-                                    '/service',
-                                    arguments: {
-                                      'selectedCategory': category.categoryName,
-                                    },
-                                  );
-                        },
+                              onTap: () {
+                                Provider.of<ServiceProvider>(context, listen: false)
+                                    .filterServicesByCategory(category.categoryName);
+                         },
                                 child: Container(
                                   width: 80.w,
                                   height: 80.h,
@@ -221,10 +231,10 @@ class _HomePageState extends State<HomePage> {
                                   ),
                                   child: Center(
                                     child: ClipOval(
-                                      child: Image.network(
-                                        category.categoryImage,
+                                      child: CachedNetworkImage(
+                                       imageUrl:  category.categoryImage,
                                         fit: BoxFit.cover,
-                                        errorBuilder: (context, error, stackTrace) {
+                                        errorWidget: (context, url, error) {
                                           return Image.asset(
                                             'assets/images/default.png',
                                             fit: BoxFit.cover,
@@ -297,10 +307,10 @@ class _HomePageState extends State<HomePage> {
                               ),
                               child: ClipRRect(
                                 borderRadius: BorderRadius.circular(10.r),
-                                child: Image.network(
-                                  category.backgroundImage,
+                                child: CachedNetworkImage(
+                                  imageUrl:category.backgroundImage,
                                   fit: BoxFit.cover,
-                                  errorBuilder: (context, error, stackTrace) {
+                                  errorWidget: (context, url, error) {
                                     return Image.asset(
                                       'assets/images/default.png',
                                       fit: BoxFit.cover,
@@ -325,142 +335,157 @@ class _HomePageState extends State<HomePage> {
               ),
             ),
           ),
-
-          Positioned(
-            top: 560.h,
-            left: 19.w,
-            width: 352.w,
-            height: 200.h,
-            child:
-            productProvider.isLoading
-                ? Center(child: CircularProgressIndicator())
-                : productProvider.products.isEmpty
-                ? Center(child: Text('No products found'))
-                : Container(
-              padding: EdgeInsets.symmetric(vertical: 5.h, horizontal: 5.w),
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(9.r),
-              ),
-              child: ListView.builder(
-                scrollDirection: Axis.vertical,
-                physics: BouncingScrollPhysics(),
-                itemCount: productProvider.products.length,
-                shrinkWrap: true,
-                itemBuilder: (context, index) {
-                  final product = productProvider.products[index];
-                  return Padding(
-                    padding: EdgeInsets.symmetric(vertical: 10.h, horizontal: 1.w),
-                    child:
-                    Stack(
-                      children: [
-                        Container(
-                          width: 352.w,
-                          height: 117.h,
-                          decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(9.r),
-                            boxShadow: [
-                              BoxShadow(
-                                color: Colors.black.withOpacity(0.1),
-                                offset: Offset(0, 2),
-                                blurRadius: 4.r,
-                              ),
-                            ],
-                            color: Color(0xffF9F9FC),
-                          ),
-                        ),
-                        Positioned(
-                          left: 0.w, width: 117.w,
-                          height: 117.h,
-                          child: ClipRRect(
-                            borderRadius: BorderRadius.circular(9.r),
-                            child: Image.network(
-                              product.productImage,
-                              fit: BoxFit.contain,
-                              errorBuilder: (context, error, stackTrace) =>
-                                  Image.asset('assets/images/default.png', fit: BoxFit.cover),
-                            ),
-                          ),
-                        ),
-                        Positioned(
-                          top: 20.h,
-                          left: 130.w,
-                          child: CustomText(
-                            text: product.productName,
-                            fontWeight: FontWeight.w600,
-                            fontSize: 16.sp,
-                          ),
-                        ),
-                        Positioned(
-                          top: 50.h,
-                          left: 130.w,
-                          child: Row(
-                            children: [
-                              Icon(Icons.star, color: Color(0xff5A5A5A), size: 18.sp),
-                              SizedBox(width: 4.w),
-                              CustomText(
-                                text:cardData[index]['rating'].toString() ,
-                                fontWeight: FontWeight.w400,
-                                fontSize: 10.sp,
-                              ),
-                              SizedBox(width: 2),
-                              CustomText(
-                                text: cardData[index]['value'].toString(),
-                                fontWeight: FontWeight.w400,
-                                fontSize: 10.sp,
-                              ),
-
-                            ],
-                          ),
-                        ),
-                        Positioned(
-                          top: 75.h,
-                          left: 136.w,
-                          child: CustomText(
-                            text: '₹${product.price}',
-                            fontSize: 16.sp,
-                            fontWeight: FontWeight.w600,
-                          ),
-                        ),
-                        Positioned(
-                          top: 77.h,
-                          left: 198.w,
-                          child: CustomText(
-                            text: '*${product.time} mins',
-                            fontSize: 14.sp,
-                            fontWeight: FontWeight.w400,
-                            color: Color(0xff666666),
-                          ),
-                        ),
-                        Positioned(
-                          top: 85.h,
-                          left: 280.w,
-                          child: GestureDetector(
-                            onTap: () {
-                              Provider.of<NavigationProvider>(context, listen: false).navigateTo('/booking');
-                            },
-                            child: Container(
-                              padding: EdgeInsets.symmetric(vertical: 4.h, horizontal: 10.w),
-                              decoration: BoxDecoration(
-                                borderRadius: BorderRadius.circular(3.r),
-                                color: Color(0xff404140),
-                              ),
-                              child: CustomText(
-                                text: 'Book',
-                                fontWeight: FontWeight.w600,
-                                fontSize: 10.sp,
-                                color: Colors.white,
-                              ),
-                            ),
-                          ),
+            Positioned(
+              top: 560.h,
+              left: 19.w,
+              width: 352.w,
+              height: 200.h,
+              child:
+    Consumer<ServiceProvider>(
+    builder: (context, serviceProvider, child) {
+      return
+        Container(
+          padding: EdgeInsets.symmetric(vertical: 5.h, horizontal: 5.w),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(9.r),
+          ),
+          child: serviceProvider.filteredServices.isEmpty
+              ? Center(
+            child: Text(
+              "No service present",
+              style: TextStyle(fontSize: 16.sp, fontWeight: FontWeight.w500),
+            ),
+          ):
+          ListView.builder(
+          scrollDirection: Axis.vertical,
+          physics: AlwaysScrollableScrollPhysics(),
+          itemCount: serviceProvider.filteredServices.length,
+          itemBuilder: (context, index) {
+            final service = serviceProvider.filteredServices[index];
+            print('Service Image URL: ${service.image}'); // In the list builder
+            return Padding(
+              padding: EdgeInsets.symmetric(vertical: 10.h, horizontal: 1.w),
+              child:
+              Stack(
+                children: [
+                  Container(
+                    width: 352.w,
+                    height: 117.h,
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(9.r),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withOpacity(0.1),
+                          offset: Offset(0, 2),
+                          blurRadius: 4.r,
                         ),
                       ],
+                      color: Color(0xffF9F9FC),
                     ),
-                  );
-                },
+                  ),
+
+                  Positioned(
+                    left: 0.w, width: 117.w,
+                    height: 117.h,
+                    child: ClipRRect(
+                      borderRadius: BorderRadius.circular(9.r),
+                      child:
+                      CachedNetworkImage(
+                        imageUrl: service.image,
+                        fit: BoxFit.contain,
+                        errorWidget: (context, url, error) =>
+                            Image.asset(
+                                'assets/images/default.png', fit: BoxFit.cover),
+                      ),
+                    ),
+                  ),
+                  Positioned(
+                    top: 20.h,
+                    left: 130.w,
+                    child: CustomText(
+                      text: service.name,
+                      fontWeight: FontWeight.w600,
+                      fontSize: 16.sp,
+                    ),
+                  ),
+                  Positioned(
+                    top: 50.h,
+                    left: 130.w,
+                    child: Row(
+                      children: [
+                        Icon(Icons.star, color: Color(0xff5A5A5A), size: 18.sp),
+                        SizedBox(width: 4.w),
+                        CustomText(
+                          text: cardData[index]['rating'].toString(),
+                          fontWeight: FontWeight.w400,
+                          fontSize: 10.sp,
+                        ),
+                        SizedBox(width: 2),
+                        CustomText(
+                          text: cardData[index]['value'].toString(),
+                          fontWeight: FontWeight.w400,
+                          fontSize: 10.sp,
+                        ),
+
+                      ],
+                    ),
+                  ),
+                  Positioned(
+                    top: 75.h,
+                    left: 136.w,
+                    child: CustomText(
+                      text: '₹${service.price}',
+                      fontSize: 16.sp,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                  Positioned(
+                    top: 77.h,
+                    left: 198.w,
+                    child: CustomText(
+                      text: ' * ${service.time}mins',
+                      fontSize: 14.sp,
+                      fontWeight: FontWeight.w400,
+                      color: Color(0xff666666),
+                    ),
+                  ),
+                  Positioned(
+                    top: 85.h,
+                    left: 280.w,
+                    child: GestureDetector(
+                      onTap: () {
+                        final filteredServices = Provider.of<ServiceProvider>(context, listen: false).filteredServices;
+
+                        Provider.of<NavigationProvider>(context, listen: false)
+                            .navigateTo('/booking', arguments: {'filteredServices': filteredServices});
+                      },
+
+                      child: Container(
+                        padding: EdgeInsets.symmetric(
+                            vertical: 4.h, horizontal: 10.w),
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(3.r),
+                          color: Color(0xff404140),
+                        ),
+                        child: CustomText(
+                          text: 'Book',
+                          fontWeight: FontWeight.w600,
+                          fontSize: 10.sp,
+                          color: Colors.white,
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
               ),
-            ),
-          )
+            );
+          },
+                ),
+        );
+    }
+              ),
+            )
 
         ],
         )

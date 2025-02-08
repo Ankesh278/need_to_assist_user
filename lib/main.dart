@@ -6,7 +6,9 @@ import 'package:need_to_assist/providers/auth_provider.dart';
 import 'package:need_to_assist/providers/location_provider.dart';
 import 'package:need_to_assist/providers/navigation_provider.dart';
 import 'package:need_to_assist/providers/onboarding_provider.dart';
+import 'package:need_to_assist/providers/service_provider.dart';
 import 'package:need_to_assist/providers/user_provider.dart';
+import 'package:need_to_assist/push_notification_api.dart';
 import 'package:need_to_assist/view/screens/booking_screen.dart';
 import 'package:need_to_assist/view/screens/detail_screen.dart';
 import 'package:need_to_assist/view/screens/home_screen.dart';
@@ -18,7 +20,6 @@ import 'package:need_to_assist/view/screens/onboarding_screen.dart';
 import 'package:need_to_assist/view/screens/otp_screen.dart';
 import 'package:need_to_assist/view/screens/payment_screen.dart';
 import 'package:need_to_assist/view/screens/profile_screen.dart';
-import 'package:need_to_assist/view/screens/registration.dart';
 import 'package:need_to_assist/view/screens/search_screen.dart';
 import 'package:need_to_assist/view/screens/service_detail.dart';
 import 'package:need_to_assist/viewModel/profile_viewmodel.dart';
@@ -36,6 +37,7 @@ void main() async {
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
+  await PushApi().initNotification();
 
   runApp(
     MultiProvider(
@@ -48,6 +50,7 @@ void main() async {
         ChangeNotifierProvider(create: (_)=> LocationProvider()),
         ChangeNotifierProvider(create: (_) => CategoryProvider()..fetchCategories()),
         ChangeNotifierProvider(create: (_) => ProductProvider()..fetchProducts()),
+        ChangeNotifierProvider(create: (_)=> ServiceProvider())
 
       ],
       child: const MyApp(),
@@ -70,7 +73,7 @@ class MyApp extends StatelessWidget {
             colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
             useMaterial3: true,
           ),
-          initialRoute: '/',
+          initialRoute: '/home',
           onGenerateRoute: (settings) {
             switch (settings.name) {
               case '/':
@@ -90,7 +93,7 @@ class MyApp extends StatelessWidget {
                 );
 
               case '/map':
-                return MaterialPageRoute(
+                 return MaterialPageRoute(
                   builder: (_) => MapSample()
                 );
               case '/booking':
@@ -100,7 +103,7 @@ class MyApp extends StatelessWidget {
                 return MaterialPageRoute(builder: (_) => LocationSearch());
 
               case '/notification':
-                return MaterialPageRoute(builder: (_) => const NotificationScreen());
+                return MaterialPageRoute(builder: (_) =>  NotificationScreen());
 
               case '/otp':
                 final args = settings.arguments as Map<String, dynamic>;
@@ -114,14 +117,8 @@ class MyApp extends StatelessWidget {
 
               case '/profile':
                 return MaterialPageRoute(builder: (_) => const ProfileScreen());
-
-              case '/registration':
-                return MaterialPageRoute(builder: (_) => const Registration());
-
               case '/search':
                 return MaterialPageRoute(builder: (_) =>  SearchScreen());
-
-
             // Handling DetailScreen with arguments
               case '/detail':
                 final args = settings.arguments as Map<String, dynamic>;
@@ -129,7 +126,7 @@ class MyApp extends StatelessWidget {
                   builder: (_) => DetailScreen(
                     cardData: args['cardData'],
                     product: args['product'],
-                  ),
+                  ),   
                 );
               default:
                 return MaterialPageRoute(builder: (_) => const OnboardingScreen());

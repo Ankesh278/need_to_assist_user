@@ -98,6 +98,7 @@ class _LocationSearchState extends State<LocationSearch> {
                   return ListTile(
                     title: Text(_placesList[index]['description']),
                     onTap: () {
+                      _searchController.text = _placesList[index]['description'];
                       getPlaceDetails(_placesList[index]['place_id']);
                     },
                   );

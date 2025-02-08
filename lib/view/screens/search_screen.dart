@@ -1,9 +1,5 @@
-import 'dart:convert';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:uuid/uuid.dart';
-import  'package:http/http.dart' as http;
 import '../../core/constants/app_colors.dart';
 import '../../core/utils/keyboard_utils.dart';
 import '../widgets/custom_position_widget.dart';
