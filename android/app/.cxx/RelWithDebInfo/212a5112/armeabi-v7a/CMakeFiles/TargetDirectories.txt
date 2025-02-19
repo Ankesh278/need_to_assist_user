@@ -1,0 +1,2 @@
+C:/Users/jaisw/StudioProjects/need_to_assist/android/app/.cxx/RelWithDebInfo/212a5112/armeabi-v7a/CMakeFiles/edit_cache.dir
+C:/Users/jaisw/StudioProjects/need_to_assist/android/app/.cxx/RelWithDebInfo/212a5112/armeabi-v7a/CMakeFiles/rebuild_cache.dir

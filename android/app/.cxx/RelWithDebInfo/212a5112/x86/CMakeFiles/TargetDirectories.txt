@@ -1,0 +1,2 @@
+C:/Users/jaisw/StudioProjects/need_to_assist/android/app/.cxx/RelWithDebInfo/212a5112/x86/CMakeFiles/edit_cache.dir
+C:/Users/jaisw/StudioProjects/need_to_assist/android/app/.cxx/RelWithDebInfo/212a5112/x86/CMakeFiles/rebuild_cache.dir
