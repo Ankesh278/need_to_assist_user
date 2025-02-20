@@ -9,7 +9,6 @@ import '../../core/constants/app_colors.dart';
 import '../../providers/category_provider.dart';
 import '../../providers/location_provider.dart';
 import '../../providers/navigation_provider.dart';
-import '../../providers/product_provider.dart';
 import '../../providers/service_provider.dart';
 import '../widgets/custom_text_widget.dart';
 
@@ -80,25 +79,6 @@ class _HomePageState extends State<HomePage> {
 
   }
 
-  @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
-    final productProvider = Provider.of<ProductProvider>(context, listen: false);
-
-    if (cardData.isEmpty && productProvider.products.isNotEmpty) {
-      setState(() {
-        cardData = productProvider.products.map((product) {
-          return {
-            'rating': 4.79,
-            'value': '(1.5k)',
-            'isAdded': false,
-            'quantity': 1,
-            'cost': double.parse(product.price),
-          };
-        }).toList();
-      });
-    }
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -343,14 +323,7 @@ class _HomePageState extends State<HomePage> {
               child:
     Consumer<ServiceProvider>(
     builder: (context, serviceProvider, child) {
-      return
-        Container(
-          padding: EdgeInsets.symmetric(vertical: 5.h, horizontal: 5.w),
-          decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(9.r),
-          ),
-          child: serviceProvider.filteredServices.isEmpty
+      return serviceProvider.filteredServices.isEmpty
               ? Center(
             child: Text(
               "No service present",
@@ -363,7 +336,6 @@ class _HomePageState extends State<HomePage> {
           itemCount: serviceProvider.filteredServices.length,
           itemBuilder: (context, index) {
             final service = serviceProvider.filteredServices[index];
-            print('Service Image URL: ${service.image}'); // In the list builder
             return Padding(
               padding: EdgeInsets.symmetric(vertical: 10.h, horizontal: 1.w),
               child:
@@ -417,13 +389,13 @@ class _HomePageState extends State<HomePage> {
                         Icon(Icons.star, color: Color(0xff5A5A5A), size: 18.sp),
                         SizedBox(width: 4.w),
                         CustomText(
-                          text: cardData[index]['rating'].toString(),
+                          text: '4.5',
                           fontWeight: FontWeight.w400,
                           fontSize: 10.sp,
                         ),
                         SizedBox(width: 2),
                         CustomText(
-                          text: cardData[index]['value'].toString(),
+                          text: '1.9k',
                           fontWeight: FontWeight.w400,
                           fontSize: 10.sp,
                         ),
@@ -481,7 +453,7 @@ class _HomePageState extends State<HomePage> {
               ),
             );
           },
-                ),
+
         );
     }
               ),

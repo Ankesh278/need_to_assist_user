@@ -111,35 +111,35 @@ class _LoginPageState extends State<LoginPage> {
 
                     PositionedWidget(top: 337.h, left: 66.w, width: 288.w, height: 0.h, child: Container(
                       decoration: BoxDecoration(border:Border(top: BorderSide(color: Color(0xff5A5A5A),width: 1.w) )),)),
-                PositionedWidget(
-                  top: 410.h,
-                  left: 52.w,
-                  width: 291.w,
-                  height: 38.h,
-                  child: GestureDetector(
-                    onTap: () async {
-                      final phoneNumber = authProvider.phoneController.text.trim();
-                      if (phoneNumber.isEmpty || !RegExp(r'^\d{10}$').hasMatch(phoneNumber)) {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(content: Text('Enter a valid 10-digit phone number')),
-                        );
-                        return;
-                      }
-                      final fullPhoneNumber = "+91${authProvider.phoneController.text.trim()}";
-                      await authProvider.sendOTP(fullPhoneNumber);
-                      navigationProvider.navigateTo('/otp', arguments: {'phoneNumber': phoneNumber});
-                    },
-                    child: Container(
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(20),
-                        border: Border.all(width: 1.sp),
+                    PositionedWidget(
+                      top: 410.h,
+                      left: 52.w,
+                      width: 291.w,
+                      height: 38.h,
+                      child: GestureDetector(
+                        onTap: () async {
+                          final phoneNumber = authProvider.phoneController.text.trim();
+                          if (phoneNumber.isEmpty || !RegExp(r'^\d{10}$').hasMatch(phoneNumber)) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(content: Text('Enter a valid 10-digit phone number')),
+                            );
+                            return;
+                          }
+                          final fullPhoneNumber = "+91${authProvider.phoneController.text.trim()}";
+                          await authProvider.sendOTP(fullPhoneNumber);
+                          navigationProvider.navigateTo('/otp', arguments: {'phoneNumber': phoneNumber});
+                        },
+                        child: Container(
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(20),
+                            border: Border.all(width: 1.sp),
+                          ),
+                          child: Center(
+                            child: CustomText(text: 'Continue'),
+                          ),
+                        ),
                       ),
-                      child: Center(
-                        child: CustomText(text: 'Continue'),
-                      ),
-                    ),
-                  ),
-                )
+                    )
                   ],
                 ),
               ),

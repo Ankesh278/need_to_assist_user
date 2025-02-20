@@ -36,7 +36,9 @@ void main() async {
   await Hive.openBox<UserModel>('userBox');
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
+
   );
+
   await PushApi().initNotification();
 
   runApp(
@@ -73,7 +75,7 @@ class MyApp extends StatelessWidget {
             colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
             useMaterial3: true,
           ),
-          initialRoute: '/home',
+          initialRoute: '/',
           onGenerateRoute: (settings) {
             switch (settings.name) {
               case '/':
@@ -113,7 +115,14 @@ class MyApp extends StatelessWidget {
                   ),
                 );
               case '/payment':
-                return MaterialPageRoute(builder: (_) => const PaymentScreen());
+                final args = settings.arguments as Map<String, dynamic>?; // Ensure it's nullable
+                return MaterialPageRoute(
+                  builder: (_) => PaymentScreen(
+                    totalCost: (args != null && args.containsKey('totalCost'))
+                        ? (args['totalCost'] as num).toDouble()
+                        : 0.0, // Default to 0.0 if null or missing
+                  ),
+                );
 
               case '/profile':
                 return MaterialPageRoute(builder: (_) => const ProfileScreen());
@@ -124,8 +133,7 @@ class MyApp extends StatelessWidget {
                 final args = settings.arguments as Map<String, dynamic>;
                 return MaterialPageRoute(
                   builder: (_) => DetailScreen(
-                    cardData: args['cardData'],
-                    product: args['product'],
+                    service: args['service'],
                   ),   
                 );
               default:

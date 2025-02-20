@@ -5,7 +5,8 @@ import '../../core/utils/keyboard_utils.dart';
 import '../widgets/custom_position_widget.dart';
 import '../widgets/custom_text_widget.dart';
 class PaymentScreen extends StatefulWidget {
-  const PaymentScreen({super.key});
+  final double totalCost;
+  const PaymentScreen({super.key, required this.totalCost});
 
   @override
   State<PaymentScreen> createState() => _PaymentScreenState();
@@ -17,6 +18,8 @@ class _PaymentScreenState extends State<PaymentScreen> {
   TextEditingController cvvController=TextEditingController();
   @override
   Widget build(BuildContext context) {
+    double taxes = 50; // Define taxes amount
+    double finalTotal = widget.totalCost + taxes;
 
     return GestureDetector(
       behavior: HitTestBehavior.opaque,
@@ -110,10 +113,10 @@ class _PaymentScreenState extends State<PaymentScreen> {
                       ),
                       PositionedWidget(
                           top: 154.h,
-                          left: 300.w,
-                          width: 40.w,
+                          left: 250.w,
+                          width: 60.w,
                           height: 20.h,
-                          child: CustomText(text: '₹ 159',
+                          child: CustomText(text: '₹ ${widget.totalCost.toStringAsFixed(0)}',
                               fontSize: 15.sp,
                               fontWeight: FontWeight.w600)
                       ),
@@ -135,10 +138,10 @@ class _PaymentScreenState extends State<PaymentScreen> {
                       ),
                       PositionedWidget(
                           top: 192.h,
-                          left: 300.w,
-                          width: 40.w,
+                          left: 250.w,
+                          width: 60.w,
                           height: 20.h,
-                          child: CustomText(text: '₹ 50',
+                          child: CustomText(text: '₹ ${taxes.toStringAsFixed(0)}',
                               fontSize: 15.sp,
                               fontWeight: FontWeight.w600)
                       ),
@@ -160,10 +163,10 @@ class _PaymentScreenState extends State<PaymentScreen> {
                       ),
                       PositionedWidget(
                           top: 234.h,
-                          left: 300.w,
-                          width: 40.w,
+                          left: 250.w,
+                          width: 60.w,
                           height: 20.h,
-                          child: CustomText(text: '₹ 209',
+                          child: CustomText(text: '₹ ${finalTotal.toStringAsFixed(0)}',
                               fontSize: 15.sp,
                               fontWeight: FontWeight.w600)
                       ),
@@ -220,7 +223,7 @@ class _PaymentScreenState extends State<PaymentScreen> {
                               ],),
                               Center(
                                 child: Container(width: 233.w,height: 28.h,
-                                  decoration: BoxDecoration(borderRadius: BorderRadius.circular(5.r),color: ColorUtils.primaryDark),child: Center(child: CustomText(text: 'Pay ₹209',color: ColorUtils.background))
+                                  decoration: BoxDecoration(borderRadius: BorderRadius.circular(5.r),color: ColorUtils.primaryDark),child: Center(child: CustomText(text: 'Pay ₹ ${finalTotal.toStringAsFixed(0)}',color: ColorUtils.background))
                                 ),
                               )
                             ],

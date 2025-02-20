@@ -1,116 +1,32 @@
-import 'dart:developer';
-
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:provider/provider.dart';
 import '../../providers/navigation_provider.dart';
-import '../../providers/product_provider.dart';
+import '../../providers/service_provider.dart';
 import '../widgets/custom_position_widget.dart';
 import '../widgets/custom_text_widget.dart';
 
 class BookingScreen extends StatefulWidget {
 
-
   const BookingScreen({super.key,});
-
   @override
   State<BookingScreen> createState() => _BookingScreenState();
 }
-
 class _BookingScreenState extends State<BookingScreen> {
-  late List<Map<String, dynamic>> cardData = [];
-
-  double totalCost = 0;
-
-  @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
-    final productProvider = Provider.of<ProductProvider>(context, listen: false);
-
-    if (cardData.isEmpty && productProvider.products.isNotEmpty) {
-      setState(() {
-        cardData = productProvider.products.map((product) {
-          return {
-            'rating': 4.79,
-            'value': '(1.5k)',
-            'isAdded': false,
-            'quantity': 1,
-            'cost': double.parse(product.price),
-          };
-        }).toList();
-      });
-    }
-  }
-  void updateTotalCost() {
-    setState(() {
-      totalCost = cardData
-          .where((card) => card['isAdded'])
-          .fold(0.0, (sum, card) => sum + card['cost'] * card['quantity']);
-    });
-  }
-
+  Map<int, int> quantities = {};
 
   @override
   Widget build(BuildContext context) {
-    print('hd');
-    final productProvider = Provider.of<ProductProvider>(context);
+    final filteredServices = Provider.of<ServiceProvider>(context).filteredServices;
+    double totalCost = 0;
+    for (var entry in quantities.entries) {
+      totalCost += filteredServices[entry.key].price * entry.value;
+    }
     return Scaffold(
       backgroundColor: Color(0xffF9F9FC),
-      bottomSheet: cardData.any((card) => card['isAdded'])
-          ? Container(width: 390.w,
-          height: 57.h,
-          padding: EdgeInsets.symmetric(vertical: 10.h, horizontal: 20.w),
-          decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.vertical(top: Radius.circular(5.r)),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withOpacity(0.5),
-                blurRadius: 6.r,
-                offset: Offset(0, 0),
-              ),
-            ],
-          ),
-          child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                CustomText(
-                    text: '₹ $totalCost',
-                    fontSize: 16.sp,
-                    fontWeight: FontWeight.w700,
-                    color: Colors.black
-                ),
-                GestureDetector(
-                  onTap: () {
-                    setState(() {
-                      for (var card in cardData) {
-                        card['isAdded'] = false;
-                        card['quantity'] = 1;
-                      }
-                      totalCost = 0;
-                    });
-                    Provider.of<NavigationProvider>(context, listen: false).navigateTo(
-                      '/payment',
-                    );
-
-                  },
-                  child: Container(
-                    width: 65.sp,
-                    height: 30.sp,
-                    decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(4.r),
-                        color: Color(0xff000000)),
-                    alignment: Alignment.center,
-                    child: CustomText(text: 'Done',
-                      fontWeight: FontWeight.w600,
-                      fontSize: 16.sp,
-                      color: Colors.white,),),
-                )
-              ])
-
-      )
-          : SizedBox.shrink(),
-      body: SafeArea(child: Stack(
+      body: SafeArea(
+          child: Stack(
         children: [
           PositionedWidget(
             top: 9.h,
@@ -201,18 +117,16 @@ class _BookingScreenState extends State<BookingScreen> {
             top: 290.h,
             left: 17.w,
             width: 352.w,
-            height: 515.h,
-            child: productProvider.isLoading
-                ? Center(child: CircularProgressIndicator())
-                : productProvider.products.isEmpty
+            height: 450.h,
+            child: filteredServices.isEmpty
                 ? Center(child: Text('No products found'))
                 : ListView.builder(
               scrollDirection: Axis.vertical,
-              itemCount: productProvider.products.length,
+              itemCount: filteredServices.length,
                 physics: BouncingScrollPhysics(),
               shrinkWrap: true,
               itemBuilder: (context, index) {
-                final product = productProvider.products[index];
+                final product = filteredServices[index];
                 return Padding(
                   padding: EdgeInsets.symmetric(vertical: 10.h, horizontal: 1.w),
                   child: Column(
@@ -221,7 +135,8 @@ class _BookingScreenState extends State<BookingScreen> {
                         children: [
                           Container(
                             width: 352.w,
-                            height: 117.h,
+                            height: 140.h,
+                            padding: EdgeInsets.all(10.w),
                             decoration: BoxDecoration(
                               borderRadius: BorderRadius.circular(9.r),
                               boxShadow: [
@@ -233,191 +148,151 @@ class _BookingScreenState extends State<BookingScreen> {
                               ],
                               color: Color(0xffF9F9FC),
                             ),
-                          ),
-                          PositionedWidget(
-                            top: 0.h,
-                            left: 0.w,
-                            width: 117.w,
-                            height: 117.h,
-                            child: Image.network(
-                              product.productImage,
-                              fit: BoxFit.cover,
-                              errorBuilder: (context, error, stackTrace) =>
-                                  Image.asset('assets/images/default.png', fit: BoxFit.cover),
-                            ),
-                          ),
-                          PositionedWidget(
-                            top: 20.h,
-                            left: 130.w,
-                            width: 160.w,
-                            height: 21.h,
-                            child: CustomText(
-                              text: product.productName,
-                              fontWeight: FontWeight.w600,
-                              fontSize: 16.sp,
-                            ),
-                          ),
-                          PositionedWidget(
-                            top: 50.h,
-                            left: 130.w,
-                            width: 15.w,
-                            height: 15.h,
-                            child: Icon(
-                              Icons.star,
-                              color: Color(0xff5A5A5A),
-                              size: 20.sp,
-                            ),
-                          ),
-                          PositionedWidget(
-                            top: 52.h,
-                            left: 152.w,
-                            width: 52.w,
-                            height: 12.h,
                             child: Row(
                               children: [
-                                CustomText(
-                                  text: cardData[index]['rating'].toString(),
-                                  fontWeight: FontWeight.w400,
-                                  fontSize: 10.sp,
+                                // Product Image
+                                ClipRRect(
+                                  borderRadius: BorderRadius.circular(8.r),
+                                  child: CachedNetworkImage(
+                                    imageUrl: product.image,
+                                    width: 100.w,
+                                    height: 100.h,
+                                    fit: BoxFit.cover,
+                                    errorWidget: (context, url, error) =>
+                                        Image.asset('assets/images/default.png', fit: BoxFit.cover),
+                                  ),
                                 ),
-                                SizedBox(width: 2),
-                                CustomText(
-                                  text: cardData[index]['value'].toString(),
-                                  fontWeight: FontWeight.w400,
-                                  fontSize: 10.sp,
+                                SizedBox(width: 10.w),
+
+                                // Product Details
+                                Expanded(
+                                  child: Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                      CustomText(
+                                        text: product.name,
+                                        fontWeight: FontWeight.w600,
+                                        fontSize: 16.sp,
+                                      ),
+                                      SizedBox(height: 8.h),
+
+                                      Row(
+                                        children: [
+                                          Icon(Icons.star, color: Color(0xff5A5A5A), size: 18.sp),
+                                          SizedBox(width: 5.w),
+                                          CustomText(text: '2.5', fontSize: 10.sp),
+                                          SizedBox(width: 5.w),
+                                          CustomText(text: '4.5', fontSize: 10.sp),
+                                          SizedBox(width: 20.w),
+                                          CustomText(
+                                            text: '* ${product.time} mins',
+                                            fontSize: 14.sp,
+                                            fontWeight: FontWeight.w400,
+                                            color: Color(0xff666666),
+                                          ),
+                                        ],
+                                      ),
+                                      SizedBox(height: 5.h),
+                                      Row(
+                                        children: [
+                                          CustomText(
+                                            text: '₹ ${product.price}',
+                                            fontSize: 16.sp,
+                                            fontWeight: FontWeight.w600,
+                                          ),
+                                          SizedBox(width: 50.h,),
+                                          GestureDetector(
+                                            onTap: () {
+                                              setState(() {
+                                                if (!quantities.containsKey(index)) {
+                                                  quantities[index] = 1;
+                                                }
+                                              });
+                                            },
+                                            child: Container(
+                                              width: 100.w,
+                                              height: 35.h,
+                                              decoration: BoxDecoration(
+                                                borderRadius: BorderRadius.circular(4.sp),
+                                                color: Color(0xffEAE8FE),
+                                              ),
+                                              child: quantities.containsKey(index)
+                                                  ? Row(
+                                                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                                                children: [
+                                                  GestureDetector(
+                                                    onTap: () {
+                                                      setState(() {
+                                                        if (quantities[index]! > 1) {
+                                                          quantities[index] = quantities[index]! - 1;
+                                                        } else {
+                                                          quantities.remove(index);
+                                                        }
+                                                      });
+                                                    },
+                                                    child: Icon(Icons.remove, size: 20.sp),
+                                                  ),
+                                                  Container(
+                                                    width: 25.w,
+                                                    height: 25.h,
+                                                    color: Colors.white,
+                                                    child: Center(
+                                                      child: CustomText(
+                                                        text: quantities[index].toString(),
+                                                        fontSize: 14.sp,
+                                                        fontWeight: FontWeight.w400,
+                                                      ),
+                                                    ),
+                                                  ),
+                                                  GestureDetector(
+                                                    onTap: () {
+                                                      setState(() {
+                                                        quantities[index] = quantities[index]! + 1;
+                                                      });
+                                                    },
+                                                    child: Icon(Icons.add, size: 20.sp),
+                                                  ),
+                                                ],
+                                              )
+                                                  : Center(
+                                                child: CustomText(
+                                                  text: "Add",
+                                                  fontSize: 14.sp,
+                                                  color: Color(0xff27C300),
+                                                  fontWeight: FontWeight.w400,
+                                                ),
+                                              ),
+                                            ),
+                                          ),
+
+                                        ],
+                                      ),
+                                      SizedBox(height: 10.h),
+                                      // View Details
+                                      GestureDetector(
+                                        onTap: () {
+                                          Provider.of<NavigationProvider>(context, listen: false).navigateTo(
+                                            '/detail',
+                                            arguments: {'service': filteredServices[index]},
+                                          );
+                                        },
+                                        child: CustomText(
+                                          text: 'View details',
+                                          color: Color(0xff27C300),
+                                          fontWeight: FontWeight.w500,
+                                          fontSize: 14.sp,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
                                 ),
                               ],
                             ),
                           ),
-                          Positioned(
-                            top: 75.h,
-                            left: 136.w,
-                            child: CustomText(
-                              text: '₹${product.price}',
-                              fontSize: 16.sp,
-                              fontWeight: FontWeight.w600,
-                            ),
-                          ),
-                          Positioned(
-                            top: 77.h,
-                            left: 198.w,
-                            child: CustomText(
-                              text: '*${product.time} mins',
-                              fontSize: 14.sp,
-                              fontWeight: FontWeight.w400,
-                              color: Color(0xff666666),
-                            ),
-                          ),
-                          PositionedWidget(
-                            top: 85.h,
-                            left: 270.w,
-                            width: 70.w,
-                            height: 25.h,
-                            child: GestureDetector(
-                              onTap: () {
-                                setState(() {
-                                  cardData[index]['isAdded'] = !cardData[index]['isAdded'];
-                                  updateTotalCost();
-                                });
-                              },
-                              child: cardData[index]['isAdded']
-                                  ? Container(
-                                decoration: BoxDecoration(
-                                  borderRadius: BorderRadius.circular(4.sp),
-                                  color: Color(0xffEAE8FE),
-                                ),
-                                child: Row(
-                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                  children: [
-                                    GestureDetector(
-                                      onTap: () {
-                                        setState(() {
-                                          if (cardData[index]['quantity'] > 0) {
-                                            cardData[index]['quantity']--;
-                                            if (cardData[index]['quantity'] == 0) {
-                                              cardData[index]['isAdded'] = false;
-                                            }
-                                            updateTotalCost();
-                                          }
-                                        });
-                                      },
-                                      child: SizedBox(
-                                        width: 17.sp,
-                                        height: 17.sp,
-                                        child: Icon(Icons.remove, size: 13.sp),
-                                      ),
-                                    ),
-                                    Container(
-                                      width: 17.w,
-                                      height: 17.h,
-                                      color: Colors.white,
-                                      child: Center(
-                                        child: CustomText(
-                                          text: cardData[index]['quantity'].toString(),
-                                          fontSize: 12.sp,
-                                          fontWeight: FontWeight.w400,
-                                        ),
-                                      ),
-                                    ),
-                                    GestureDetector(
-                                      onTap: () {
-                                        setState(() {
-                                          cardData[index]['quantity']++;
-                                          cardData[index]['isAdded'] = true;
-                                          updateTotalCost();
-                                        });
-                                      },
-                                      child: SizedBox(
-                                        width: 17.sp,
-                                        height: 17.sp,
-                                        child: Icon(Icons.add, size: 13.sp),
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              )
-                                  : Container(
-                                decoration: BoxDecoration(
-                                  borderRadius: BorderRadius.circular(6.r),
-                                  border: Border.all(color: Color(0xff27C300)),
-                                ),
-                                alignment: Alignment.center,
-                                child: Center(
-                                  child: CustomText(
-                                    text: 'ADD',
-                                    fontWeight: FontWeight.w400,
-                                    fontSize: 14.sp,
-                                    color: Color(0xff27C300),
-                                  ),
-                                ),
-                              ),
-                            ),
-                          ),
-                          PositionedWidget(
-                            top: 100.h,
-                            left: 135.w,
-                            width: 55.w,
-                            height: 14.h,
-                            child: GestureDetector(
-                              onTap: () {
-                                Provider.of<NavigationProvider>(context, listen: false).navigateTo(
-                                  '/detail',
-                                  arguments: {
-                                    'cardData': cardData[index],
-                                    'product': productProvider.products[index],
-                                  },
-                                );
-                              },
-                              child: CustomText(
-                                text: 'View details',
-                                color: Color(0xff27C300),
-                                fontWeight: FontWeight.w500,
-                                fontSize: 7.sp,
-                              ),
-                            ),
-                          ),
                         ],
                       ),
+
                     ],
                   ),
                 );
@@ -428,6 +303,35 @@ class _BookingScreenState extends State<BookingScreen> {
 
         ],
       )),
+      bottomSheet: quantities.isNotEmpty
+          ? Container(
+        height: 80.h,
+        color: Colors.white,
+        padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 10.h),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            CustomText(
+              text: 'Total: ₹ $totalCost',
+              fontWeight: FontWeight.w600,
+              fontSize: 16.sp,
+            ),
+            ElevatedButton(
+              onPressed: () {
+                Navigator.pushNamed(context, '/payment', arguments: {'totalCost': totalCost});
+              },
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.black,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(10.r),
+                ),
+              ),
+              child: Text('Done',style: const TextStyle(color: Colors.white),),
+            ),
+          ],
+        ),
+      )
+          : null,
     );
   }
 }

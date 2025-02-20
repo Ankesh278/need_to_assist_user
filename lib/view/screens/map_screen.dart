@@ -71,11 +71,10 @@ class _MapSampleState extends State<MapSample> {
                   onPressed: () async{
                     await locationProvider.getCurrentLocation(context);
                     if (locationProvider.currentPosition != null) {
-                      _mapController?.animateCamera(CameraUpdate.newLatLng(locationProvider.currentPosition!));
+                      _mapController?.animateCamera(CameraUpdate.newLatLng(
+                          locationProvider.currentPosition!));
                     }
-                    Future.delayed(Duration(seconds: 3), () {
                       Provider.of<NavigationProvider>(context, listen: false).navigateTo('/home');
-                    });
                   },
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Color(0xff5A5A5A),

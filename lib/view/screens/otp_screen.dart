@@ -103,7 +103,7 @@ class _OtpScreenState extends State<OtpScreen> {
                   },
                 ),
               ),
-      PositionedWidget(top: 131.h, left: 137.w, width: 119.w, height:29.h, child: CustomText(text: 'Enter OTP',fontSize: 24.sp,fontWeight: FontWeight.w700,color: Color(0xff5A5A5A),)),
+              PositionedWidget(top: 131.h, left: 137.w, width: 119.w, height:29.h, child: CustomText(text: 'Enter OTP',fontSize: 24.sp,fontWeight: FontWeight.w700,color: Color(0xff5A5A5A),)),
               PositionedWidget(top: 167.h, left: 110.w, width: 174.w, height:17.h, child: CustomText(text: 'OTP sent to ${widget.phoneNumber}',fontSize: 14.sp,fontWeight: FontWeight.w600,color: Color(0xffADA9A9),)),
               Form(
                 key:_formKey ,
@@ -180,8 +180,8 @@ class _OtpScreenState extends State<OtpScreen> {
                   verifyOtp();
                 },
                 child: Container(
-                decoration: BoxDecoration(borderRadius: BorderRadius.circular(20),border: Border.all(width: 1.sp),color: Color(0xff5A5A5A),),
-                child: Center(child: CustomText(text: 'Verify OTP',color: Colors.white,fontWeight: FontWeight.w700,fontSize: 15.sp,))),
+                    decoration: BoxDecoration(borderRadius: BorderRadius.circular(20),border: Border.all(width: 1.sp),color: Color(0xff5A5A5A),),
+                    child: Center(child: CustomText(text: 'Verify OTP',color: Colors.white,fontWeight: FontWeight.w700,fontSize: 15.sp,))),
               )),
               // Bottom keyboard indicator
 
@@ -192,4 +192,3 @@ class _OtpScreenState extends State<OtpScreen> {
     );
   }
 }
-
