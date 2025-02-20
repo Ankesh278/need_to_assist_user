@@ -14,17 +14,17 @@ import '../widgets/custom_text_widget.dart';
 
 class HomeScreen extends StatelessWidget {
 
-  HomeScreen({super.key});
+  const HomeScreen({super.key});
   @override
   Widget build(BuildContext context) {
-    final List<Widget> _screens = [
+    final List<Widget> screens = [
       const HomePage(),
       SearchScreen(),
        NotificationScreen(),
     ];
     final navigationProvider = Provider.of<NavigationProvider>(context);
     return Scaffold(
-      body: _screens[navigationProvider.selectedIndex], // Dynamically switch between screens
+      body: screens[navigationProvider.selectedIndex], // Dynamically switch between screens
       bottomNavigationBar:
       BottomNavigationBar(iconSize: 40,
         backgroundColor: ColorUtils.background,
@@ -70,8 +70,7 @@ class HomePage extends StatefulWidget {
 }
 class _HomePageState extends State<HomePage> {
 
-
-  late List<Map<String, dynamic>> cardData = [];
+  @override
   void initState() {
     super.initState();
     Provider.of<LocationProvider>(context, listen: false).loadSavedLocation();
@@ -84,7 +83,6 @@ class _HomePageState extends State<HomePage> {
   Widget build(BuildContext context) {
     final locationProvider = Provider.of<LocationProvider>(context);
     final categoryProvider = Provider.of<CategoryProvider>(context);
-    final serviceProvider = Provider.of<ServiceProvider>(context);
     return Scaffold(
       backgroundColor: ColorUtils.background,
       body: SafeArea(
@@ -278,7 +276,7 @@ class _HomePageState extends State<HomePage> {
                                 borderRadius: BorderRadius.circular(10.r),
                                 boxShadow: [
                                   BoxShadow(
-                                    color: Colors.grey.withOpacity(0.2),
+                                    color: Colors.grey.withValues(blue: 0.2),
                                     blurRadius: 4,
                                     spreadRadius: 2,
                                   ),
@@ -348,7 +346,7 @@ class _HomePageState extends State<HomePage> {
                       borderRadius: BorderRadius.circular(9.r),
                       boxShadow: [
                         BoxShadow(
-                          color: Colors.black.withOpacity(0.1),
+                          color: Colors.black.withValues(blue: 0.1),
                           offset: Offset(0, 2),
                           blurRadius: 4.r,
                         ),
