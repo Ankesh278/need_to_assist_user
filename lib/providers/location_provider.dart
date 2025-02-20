@@ -8,6 +8,10 @@ class LocationProvider extends ChangeNotifier {
   String _currentAddress = "Select a location";
   Marker? _marker;
   GoogleMapController? _mapController;
+  void setMapController(GoogleMapController controller) {
+    _mapController = controller;
+  }
+
 
   LatLng? get currentPosition => _currentPosition;
   String get currentAddress => _currentAddress;
@@ -18,12 +22,6 @@ class LocationProvider extends ChangeNotifier {
     bool serviceEnabled;
     LocationPermission permission;
 
-    // ✅ Check if location services are enabled
-    serviceEnabled = await Geolocator.isLocationServiceEnabled();
-    if (!serviceEnabled) {
-      await Geolocator.openLocationSettings();
-      return Future.error('Location services are disabled.');
-    }
 
     // ✅ Request permission
     permission = await Geolocator.checkPermission();
@@ -87,7 +85,16 @@ class LocationProvider extends ChangeNotifier {
     await prefs.setDouble("saved_lng", position.longitude);
 
     notifyListeners();
-  }
+    if (_mapController != null) {
+      _mapController!.animateCamera(
+          CameraUpdate.newCameraPosition(
+            CameraPosition(
+              target: _currentPosition!,
+              zoom: 16.0, // Adjust zoom level as needed
+            )) // Adjust zoom level
+      );
+    }
+    }
 
   // 🔹 Load saved location on app restart
   Future<void> loadSavedLocation() async {

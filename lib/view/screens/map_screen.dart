@@ -50,8 +50,10 @@ class _MapSampleState extends State<MapSample> {
                           ? {locationProvider.marker!}
                           : {},
                       onMapCreated: (GoogleMapController controller) {
-                        _mapController = controller;
-                      },
+                      _mapController = controller;
+                      Provider.of<LocationProvider>(context, listen: false).setMapController(controller);
+                    },
+
                     ),
               ),
               PositionedWidget(top: 564.h,left: 0,width: 390.w,height: 280.h,

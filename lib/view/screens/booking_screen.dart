@@ -215,7 +215,7 @@ class _BookingScreenState extends State<BookingScreen> {
                                               height: 35.h,
                                               decoration: BoxDecoration(
                                                 borderRadius: BorderRadius.circular(4.sp),
-                                                color: Color(0xffEAE8FE),
+                                                color: Color(0xff404140),
                                               ),
                                               child: quantities.containsKey(index)
                                                   ? Row(
@@ -231,7 +231,7 @@ class _BookingScreenState extends State<BookingScreen> {
                                                         }
                                                       });
                                                     },
-                                                    child: Icon(Icons.remove, size: 20.sp),
+                                                    child: Icon(Icons.remove, size: 20.sp,color: Colors.white,),
                                                   ),
                                                   Container(
                                                     width: 25.w,
@@ -251,7 +251,7 @@ class _BookingScreenState extends State<BookingScreen> {
                                                         quantities[index] = quantities[index]! + 1;
                                                       });
                                                     },
-                                                    child: Icon(Icons.add, size: 20.sp),
+                                                    child: Icon(Icons.add, size: 20.sp,color: Colors.white,),
                                                   ),
                                                 ],
                                               )
@@ -259,7 +259,7 @@ class _BookingScreenState extends State<BookingScreen> {
                                                 child: CustomText(
                                                   text: "Add",
                                                   fontSize: 14.sp,
-                                                  color: Color(0xff27C300),
+                                                  color: Colors.white,
                                                   fontWeight: FontWeight.w400,
                                                 ),
                                               ),
@@ -318,10 +318,11 @@ class _BookingScreenState extends State<BookingScreen> {
             ),
             ElevatedButton(
               onPressed: () {
-                Navigator.pushNamed(context, '/payment', arguments: {'totalCost': totalCost});
+                Navigator.pushNamed(context, '/payment', arguments: {'totalCost': totalCost,'quantities':quantities},
+                );
               },
               style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.black,
+                backgroundColor: Color(0xff404140),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(10.r),
                 ),

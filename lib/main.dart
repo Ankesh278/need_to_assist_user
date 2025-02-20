@@ -119,7 +119,10 @@ class MyApp extends StatelessWidget {
                   builder: (_) => PaymentScreen(
                     totalCost: (args != null && args.containsKey('totalCost'))
                         ? (args['totalCost'] as num).toDouble()
-                        : 0.0, // Default to 0.0 if null or missing
+                        : 0.0,
+                    quantities: (args != null && args.containsKey('quantities'))
+                        ? args['quantities'] as Map<int, int>
+                        : {}, // Default to 0.0 if null or missing
                   ),
                 );
 

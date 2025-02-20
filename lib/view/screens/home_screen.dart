@@ -200,10 +200,10 @@ class _HomePageState extends State<HomePage> {
                                     borderRadius: BorderRadius.circular(50),
                                     boxShadow: [
                                       BoxShadow(
-                                        blurRadius: 1,
-                                        spreadRadius: 1,
-                                        color: Colors.grey.shade300,
-                                      ),
+                                  color: Colors.black.withValues(blue:0.2),
+                                  offset: Offset(0, 0),
+                                  blurRadius: 2.r,
+                                ),
                                     ],
                                     color: ColorUtils.background,
                                   ),
@@ -276,12 +276,12 @@ class _HomePageState extends State<HomePage> {
                                 borderRadius: BorderRadius.circular(10.r),
                                 boxShadow: [
                                   BoxShadow(
-                                    color: Colors.grey.withValues(blue: 0.2),
-                                    blurRadius: 4,
-                                    spreadRadius: 2,
+                                    color: Colors.black.withValues(blue:0.2),
+                                    offset: Offset(0, 0),
+                                    blurRadius: 2.r,
                                   ),
                                 ],
-                                color: Colors.white,
+                                color: Color(0xffF9F9FC),
                               ),
                               child: ClipRRect(
                                 borderRadius: BorderRadius.circular(10.r),
@@ -341,110 +341,105 @@ class _HomePageState extends State<HomePage> {
                 children: [
                   Container(
                     width: 352.w,
-                    height: 117.h,
+                    height: 140.h,
+                    padding: EdgeInsets.all(10.w),
                     decoration: BoxDecoration(
                       borderRadius: BorderRadius.circular(9.r),
                       boxShadow: [
                         BoxShadow(
-                          color: Colors.black.withValues(blue: 0.1),
-                          offset: Offset(0, 2),
-                          blurRadius: 4.r,
+                          color: Colors.black.withValues(blue:0.2),
+                          offset: Offset(0, 0),
+                          blurRadius: 2.r,
                         ),
                       ],
                       color: Color(0xffF9F9FC),
                     ),
-                  ),
-
-                  Positioned(
-                    left: 0.w, width: 117.w,
-                    height: 117.h,
-                    child: ClipRRect(
-                      borderRadius: BorderRadius.circular(9.r),
-                      child:
-                      CachedNetworkImage(
-                        imageUrl: service.image,
-                        fit: BoxFit.contain,
-                        errorWidget: (context, url, error) =>
-                            Image.asset(
-                                'assets/images/default.png', fit: BoxFit.cover),
-                      ),
-                    ),
-                  ),
-                  Positioned(
-                    top: 20.h,
-                    left: 130.w,
-                    child: CustomText(
-                      text: service.name,
-                      fontWeight: FontWeight.w600,
-                      fontSize: 16.sp,
-                    ),
-                  ),
-                  Positioned(
-                    top: 50.h,
-                    left: 130.w,
                     child: Row(
                       children: [
-                        Icon(Icons.star, color: Color(0xff5A5A5A), size: 18.sp),
-                        SizedBox(width: 4.w),
-                        CustomText(
-                          text: '4.5',
-                          fontWeight: FontWeight.w400,
-                          fontSize: 10.sp,
+                        // Product Image
+                        ClipRRect(
+                          borderRadius: BorderRadius.circular(8.r),
+                          child: CachedNetworkImage(
+                            imageUrl: service.image,
+                            width: 100.w,
+                            height: 100.h,
+                            fit: BoxFit.cover,
+                            errorWidget: (context, url, error) =>
+                                Image.asset('assets/images/default.png', fit: BoxFit.cover),
+                          ),
                         ),
-                        SizedBox(width: 2),
-                        CustomText(
-                          text: '1.9k',
-                          fontWeight: FontWeight.w400,
-                          fontSize: 10.sp,
-                        ),
+                        SizedBox(width: 10.w),
 
+                        // Product Details
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              CustomText(
+                                text: service.name,
+                                fontWeight: FontWeight.w600,
+                                fontSize: 16.sp,
+                              ),
+                              SizedBox(height: 8.h),
+
+                              Row(
+                                children: [
+                                  Icon(Icons.star, color: Color(0xff5A5A5A), size: 18.sp),
+                                  SizedBox(width: 5.w),
+                                  CustomText(text: '2.5', fontSize: 10.sp),
+                                  SizedBox(width: 5.w),
+                                  CustomText(text: '4.5', fontSize: 10.sp),
+                                  SizedBox(width: 20.w),
+                                  CustomText(
+                                    text: '* ${service.time} mins',
+                                    fontSize: 14.sp,
+                                    fontWeight: FontWeight.w400,
+                                    color: Color(0xff666666),
+                                  ),
+                                ],
+                              ),
+                              SizedBox(height: 5.h),
+                              Row(
+                                children: [
+                                  CustomText(
+                                    text: '₹ ${service.price}',
+                                    fontSize: 16.sp,
+                                    fontWeight: FontWeight.w600,
+                                  ),
+                                  SizedBox(width: 50.h,),
+                                  GestureDetector(
+                                    onTap: () {
+                                      final filteredServices = Provider.of<ServiceProvider>(context, listen: false).filteredServices;
+
+                                      Provider.of<NavigationProvider>(context, listen: false)
+                                          .navigateTo('/booking', arguments: {'filteredServices': filteredServices});
+                                    },
+
+                                    child: Container(
+                                      width: 100.w,height: 35.h,
+                                      decoration: BoxDecoration(
+                                        borderRadius: BorderRadius.circular(4.r),
+                                        color: Color(0xff404140),
+                                      ),
+                                      child: Center(
+                                        child: CustomText(
+                                          text: 'Book',
+                                          fontWeight: FontWeight.w600,
+                                          fontSize: 14.sp,
+                                          color: Colors.white,
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+
+                                ],
+                              ),
+
+                            ],
+                          ),
+                        ),
                       ],
-                    ),
-                  ),
-                  Positioned(
-                    top: 75.h,
-                    left: 136.w,
-                    child: CustomText(
-                      text: '₹${service.price}',
-                      fontSize: 16.sp,
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
-                  Positioned(
-                    top: 77.h,
-                    left: 198.w,
-                    child: CustomText(
-                      text: ' * ${service.time}mins',
-                      fontSize: 14.sp,
-                      fontWeight: FontWeight.w400,
-                      color: Color(0xff666666),
-                    ),
-                  ),
-                  Positioned(
-                    top: 85.h,
-                    left: 280.w,
-                    child: GestureDetector(
-                      onTap: () {
-                        final filteredServices = Provider.of<ServiceProvider>(context, listen: false).filteredServices;
-
-                        Provider.of<NavigationProvider>(context, listen: false)
-                            .navigateTo('/booking', arguments: {'filteredServices': filteredServices});
-                      },
-
-                      child: Container(
-                        padding: EdgeInsets.symmetric(
-                            vertical: 4.h, horizontal: 10.w),
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(3.r),
-                          color: Color(0xff404140),
-                        ),
-                        child: CustomText(
-                          text: 'Book',
-                          fontWeight: FontWeight.w600,
-                          fontSize: 10.sp,
-                          color: Colors.white,
-                        ),
-                      ),
                     ),
                   ),
                 ],

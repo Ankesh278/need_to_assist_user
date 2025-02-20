@@ -166,13 +166,13 @@ class _DetailScreenState extends State<DetailScreen> {
                                           height: 35.h,
                                           decoration: BoxDecoration(
                                             borderRadius: BorderRadius.circular(4.sp),
-                                            color: Color(0xffEAE8FE),
+                                            color: Color(0xff404140),
                                           ),
                                           child: Center(
                                             child: CustomText(
                                               text: "Book Now",
                                               fontSize: 14.sp,
-                                              color: Color(0xff27C300),
+                                              color: Colors.white,
                                               fontWeight: FontWeight.w400,
                                             ),
                                           ),

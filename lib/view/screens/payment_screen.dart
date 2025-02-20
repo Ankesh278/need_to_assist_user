@@ -1,12 +1,18 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:provider/provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import '../../core/constants/app_colors.dart';
 import '../../core/utils/keyboard_utils.dart';
+import '../../providers/service_provider.dart';
 import '../widgets/custom_position_widget.dart';
 import '../widgets/custom_text_widget.dart';
 class PaymentScreen extends StatefulWidget {
   final double totalCost;
-  const PaymentScreen({super.key, required this.totalCost});
+  final Map<int, int> quantities;
+  const PaymentScreen({super.key, required this.totalCost, required this.quantities});
 
   @override
   State<PaymentScreen> createState() => _PaymentScreenState();
@@ -222,8 +228,34 @@ class _PaymentScreenState extends State<PaymentScreen> {
                                 )
                               ],),
                               Center(
-                                child: Container(width: 233.w,height: 28.h,
-                                  decoration: BoxDecoration(borderRadius: BorderRadius.circular(5.r),color: ColorUtils.primaryDark),child: Center(child: CustomText(text: 'Pay ₹ ${finalTotal.toStringAsFixed(0)}',color: ColorUtils.background))
+                                child: GestureDetector(
+                                  onTap: () async{
+
+    final serviceProvider = Provider.of<ServiceProvider>(context, listen: false);
+    List<Map<String, dynamic>> bookedServices = widget.quantities.entries.map((entry) {
+    final service = serviceProvider.filteredServices[entry.key];
+    return {
+    'serviceName': service.name,
+    'quantity': entry.value,
+    'price': service.price,
+    'totalPrice': service.price * entry.value,
+    'timestamp': DateTime.now().toString(),
+    };
+    }).toList();
+
+    // Save to SharedPreferences (or use Firebase Firestore for cloud storage)
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    List<String> existingBookings = prefs.getStringList('booking_history') ?? [];
+    existingBookings.add(jsonEncode(bookedServices));
+    await prefs.setStringList('booking_history', existingBookings);
+
+    // Navigate to Profile Screen (My Booking Section)
+    Navigator.pushNamed(context, '/profile');
+
+                                  },
+                                  child: Container(width: 233.w,height: 28.h,
+                                    decoration: BoxDecoration(borderRadius: BorderRadius.circular(5.r),color: ColorUtils.primaryDark),child: Center(child: CustomText(text: 'Pay ₹ ${finalTotal.toStringAsFixed(0)}',color: ColorUtils.background))
+                                  ),
                                 ),
                               )
                             ],
