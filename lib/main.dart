@@ -27,7 +27,7 @@ import 'package:provider/provider.dart';
 import 'core/config/firebase_options.dart';
 import 'models/user_model.dart';
 import 'providers/category_provider.dart';
-import 'providers/product_provider.dart';
+
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -51,7 +51,6 @@ void main() async {
         ChangeNotifierProvider(create: (_)=>ProfileViewModel()),
         ChangeNotifierProvider(create: (_)=> LocationProvider()),
         ChangeNotifierProvider(create: (_) => CategoryProvider()..fetchCategories()),
-        ChangeNotifierProvider(create: (_) => ProductProvider()..fetchProducts()),
         ChangeNotifierProvider(create: (_)=> ServiceProvider())
 
       ],
