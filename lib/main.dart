@@ -1,8 +1,10 @@
+
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:hive_flutter/adapters.dart';
 import 'package:need_to_assist/providers/auth_provider.dart';
+import 'package:need_to_assist/providers/cart_provider.dart';
 import 'package:need_to_assist/providers/location_provider.dart';
 import 'package:need_to_assist/providers/navigation_provider.dart';
 import 'package:need_to_assist/providers/onboarding_provider.dart';
@@ -10,6 +12,7 @@ import 'package:need_to_assist/providers/service_provider.dart';
 import 'package:need_to_assist/providers/user_provider.dart';
 import 'package:need_to_assist/push_notification_api.dart';
 import 'package:need_to_assist/view/screens/booking_screen.dart';
+import 'package:need_to_assist/view/screens/cart_screen.dart';
 import 'package:need_to_assist/view/screens/detail_screen.dart';
 import 'package:need_to_assist/view/screens/home_screen.dart';
 import 'package:need_to_assist/view/screens/location_search.dart';
@@ -24,7 +27,6 @@ import 'package:need_to_assist/view/screens/search_screen.dart';
 import 'package:need_to_assist/view/screens/service_detail.dart';
 import 'package:need_to_assist/viewModel/profile_viewmodel.dart';
 import 'package:provider/provider.dart';
-import 'core/config/firebase_options.dart';
 import 'models/user_model.dart';
 import 'providers/category_provider.dart';
 
@@ -34,10 +36,9 @@ void main() async {
   await Hive.initFlutter();
   Hive.registerAdapter(UserModelAdapter());
   await Hive.openBox<UserModel>('userBox');
-  await Firebase.initializeApp(
-    options: DefaultFirebaseOptions.currentPlatform,
-
-  );
+  if (Firebase.apps.isEmpty) {
+    await Firebase.initializeApp();
+  }
 
   await PushApi().initNotification();
 
@@ -51,7 +52,8 @@ void main() async {
         ChangeNotifierProvider(create: (_)=>ProfileViewModel()),
         ChangeNotifierProvider(create: (_)=> LocationProvider()),
         ChangeNotifierProvider(create: (_) => CategoryProvider()..fetchCategories()),
-        ChangeNotifierProvider(create: (_)=> ServiceProvider())
+        ChangeNotifierProvider(create: (_)=> ServiceProvider()),
+        ChangeNotifierProvider(create: (_) => CartProvider()),
 
       ],
       child: const MyApp(),

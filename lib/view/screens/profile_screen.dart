@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:need_to_assist/providers/navigation_provider.dart';
 import 'package:need_to_assist/view/screens/booking_history.dart';
+import 'package:need_to_assist/view/screens/help_support.dart';
 import 'package:need_to_assist/view/widgets/custom_position_widget.dart';
 import 'package:need_to_assist/view/widgets/custom_text_widget.dart';
 import 'package:need_to_assist/viewModel/profile_viewmodel.dart';
@@ -88,7 +89,11 @@ class ProfileScreen extends StatelessWidget {
               )]),
                   child: Column(mainAxisAlignment: MainAxisAlignment.spaceAround,
                     children: [
-                      CustomListTile(imagePath: 'assets/images/profile_screen/leading_icon/1.png',title: 'Help & Support',),
+                      GestureDetector(
+                        onTap: (){
+                          Navigator.push(context, MaterialPageRoute(builder: (context)=>HelpSupportScreen()));
+                        },
+                          child: CustomListTile(imagePath: 'assets/images/profile_screen/leading_icon/1.png',title: 'Help & Support',)),
                       Container(margin: EdgeInsets.symmetric(horizontal: 16.w,),
                         height: 1.h,color: Color(0xffD9D9D9),),
                       GestureDetector(onTap: (){

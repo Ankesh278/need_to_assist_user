@@ -31,41 +31,62 @@ import 'package:flutter/material.dart';
   }
 
 
-  Future<void> sendOTP(String phoneNumber, {Function(String)? onCodeSent, Function(String)? onError}) async {
-  if (phoneNumber.isEmpty || phoneNumber.length < 10) {
-  onError?.call("Invalid phone number");
-  return;
-  }
+  Future<void> sendOTP(
+      String phoneNumber, {
+        required BuildContext context,
+        Function(String)? onCodeSent,
+        Function(String)? onError,
+      }) async {
+    if (phoneNumber.isEmpty || phoneNumber.length < 10) {
+      onError?.call("Invalid phone number");
+      return;
+    }
 
-  final formattedNumber = phoneNumber.startsWith("+91") ? phoneNumber : "+91$phoneNumber";
+    final formattedNumber = phoneNumber.startsWith("+91") ? phoneNumber : "+91$phoneNumber";
 
-  try {
-  await _auth.verifyPhoneNumber(
-  phoneNumber: formattedNumber,
-  verificationCompleted: (PhoneAuthCredential credential) async {
-  await _auth.signInWithCredential(credential);
-  notifyListeners();
-  },
-  verificationFailed: (FirebaseAuthException e) {
-  debugPrint('Verification failed: ${e.message}');
-  onError?.call(e.message ?? "Verification failed");
-  },
-  codeSent: (String verificationId, int? resendToken) {
-  _verificationId = verificationId;
-  _isResendEnabled = false; // ✅ Disable Resend Initially
-  notifyListeners();
-  onCodeSent?.call(verificationId);
-  },
-  codeAutoRetrievalTimeout: (String verificationId) {
-  _verificationId = verificationId;
-  _isResendEnabled = true; // ✅ Enable Resend After Timeout
-  notifyListeners();
-  },
-  );
-  } catch (e) {
-  debugPrint('Error sending OTP: $e');
-  onError?.call("Error sending OTP");
-  }
+    try {
+      // Show a snackbar when reCAPTCHA starts
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Loading reCAPTCHA, please wait...')),
+      );
+
+      await _auth.verifyPhoneNumber(
+        phoneNumber: formattedNumber,
+        verificationCompleted: (PhoneAuthCredential credential) async {
+          await _auth.signInWithCredential(credential);
+          notifyListeners();
+        },
+        verificationFailed: (FirebaseAuthException e) {
+          debugPrint('Verification failed: ${e.message}');
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Verification failed: ${e.message}')),
+          );
+          onError?.call(e.message ?? "Verification failed");
+        },
+        codeSent: (String verificationId, int? resendToken) {
+          _verificationId = verificationId;
+          _isResendEnabled = false; // ✅ Disable Resend Initially
+          notifyListeners();
+
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('OTP Sent Successfully!')),
+          );
+
+          onCodeSent?.call(verificationId);
+        },
+        codeAutoRetrievalTimeout: (String verificationId) {
+          _verificationId = verificationId;
+          _isResendEnabled = true; // ✅ Enable Resend After Timeout
+          notifyListeners();
+        },
+      );
+    } catch (e) {
+      debugPrint('Error sending OTP: $e');
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Error sending OTP, please try again.')),
+      );
+      onError?.call("Error sending OTP");
+    }
   }
 
   Future<bool> verifyOTP(String otp, {Function(String)? onError}) async {

@@ -126,7 +126,7 @@ class _LoginPageState extends State<LoginPage> {
                             return;
                           }
                           final fullPhoneNumber = "+91${authProvider.phoneController.text.trim()}";
-                          await authProvider.sendOTP(fullPhoneNumber);
+                          await authProvider.sendOTP(fullPhoneNumber, context:context );
                           navigationProvider.navigateTo('/otp', arguments: {'phoneNumber': phoneNumber});
                         },
                         child: Container(
