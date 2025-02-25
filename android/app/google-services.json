@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "487754750110",
+    "project_id": "needtoassist-c3203",
+    "storage_bucket": "needtoassist-c3203.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:487754750110:android:bf53a1f2ee3d8344d7438f",
+        "android_client_info": {
+          "package_name": "com.example.need_to_assist"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBGd25Ln-sFTZsv1kHavc2g92FmDv4hr80"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
