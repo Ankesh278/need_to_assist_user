@@ -70,14 +70,28 @@ class _MapSampleState extends State<MapSample> {
                 width: 366.w,
                 height: 50.h,
                 child: ElevatedButton(
-                  onPressed: () async{
+                  onPressed: () async {
+                    final locationProvider = Provider.of<LocationProvider>(context, listen: false);
+
+                    // ✅ Wait for location to be fetched
                     await locationProvider.getCurrentLocation(context);
+
+                    // ✅ Check if location is fetched before proceeding
                     if (locationProvider.currentPosition != null) {
-                      _mapController?.animateCamera(CameraUpdate.newLatLng(
-                          locationProvider.currentPosition!));
+                      _mapController?.animateCamera(
+                        CameraUpdate.newLatLng(locationProvider.currentPosition!),
+                      );
+                    } else {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(content: Text("Failed to get current location. Please enable GPS.")),
+                      );
+                      return; // Stop navigation if location fetch fails
                     }
-                      Provider.of<NavigationProvider>(context, listen: false).navigateTo('/home');
+
+                    // ✅ Navigate to home after location is set
+                    Provider.of<NavigationProvider>(context, listen: false).navigateTo('/home');
                   },
+
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Color(0xff5A5A5A),
                     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(6)),

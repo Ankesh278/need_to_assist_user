@@ -134,7 +134,7 @@ class ProfileScreen extends StatelessWidget {
     height: 45.h,
     child:GestureDetector(
       onTap: (){
-Provider.of<AuthProvider>(context,listen:false).logout(context);
+Provider.of<AuthProvider>(context,listen:false).logoutUser(context);
 Provider.of<NavigationProvider>(context,listen:false).navigateAndRemoveUntil('/login');
       },
       child: Container(decoration: BoxDecoration(borderRadius: BorderRadius.circular(5.r),color: Color(0xffffffff),boxShadow: [BoxShadow(

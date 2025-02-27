@@ -1,5 +1,4 @@
 import 'dart:convert';
-
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -8,6 +7,7 @@ import 'package:http/http.dart' as http;
 import 'package:need_to_assist/view/screens/cart_screen.dart';
 import 'package:need_to_assist/view/screens/login_screen.dart';
 import 'package:provider/provider.dart';
+import '../../providers/cart_provider.dart';
 import '../../providers/navigation_provider.dart';
 import '../../providers/service_provider.dart';
 import '../widgets/custom_position_widget.dart';
@@ -21,7 +21,6 @@ class BookingScreen extends StatefulWidget {
 }
 class _BookingScreenState extends State<BookingScreen> {
   Map<int, int> quantities = {};
-
   void _sendCartData(BuildContext context, double totalCost) async {
     final url = Uri.parse('http://15.207.112.43:8080/api/user/cart');
     final user = FirebaseAuth.instance.currentUser;
@@ -34,19 +33,33 @@ class _BookingScreenState extends State<BookingScreen> {
     final request = http.MultipartRequest('POST', url);
     request.fields['userId'] = userId;
 
-    final filteredServices = Provider
-        .of<ServiceProvider>(context, listen: false)
-        .filteredServices;
+    final filteredServices = Provider.of<ServiceProvider>(context, listen: false).filteredServices;
+
+    bool hasItems = false;
 
     for (var entry in quantities.entries) {
-      final product = filteredServices[entry.key];
+      if (entry.value > 0 && entry.key < filteredServices.length) { // ✅ Ensure valid index
+        final product = filteredServices[entry.key];
+        request.fields['ProductId'] = product.id;
+        request.fields['name'] = product.name;
+        request.fields['price'] = product.price.toString();
+        request.fields['category'] = product.categoryName;
+        request.fields['image'] = product.image;
 
-      request.fields['ProductId'] = product.id;
-      request.fields['name'] = product.name;
-      request.fields['price'] = product.price.toString();
-      request.fields['category'] =
-          product.categoryName; // Set category dynamically if needed
+        hasItems = true;
 
+            }
+    }
+
+    if (!hasItems) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Please add at least one valid item to the cart.'),
+          backgroundColor: Colors.orange,
+          duration: Duration(seconds: 2),
+        ),
+      );
+      return;
     }
 
     try {
@@ -58,21 +71,16 @@ class _BookingScreenState extends State<BookingScreen> {
         print("Cart sent successfully: $decodedResponse");
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text(
-                decodedResponse['message'] ?? 'Cart sent successfully!'),
-            // ✅ Show success message
+            content: Text(decodedResponse['message'] ?? 'Cart sent successfully!'),
             backgroundColor: Colors.green,
             duration: Duration(seconds: 2),
           ),
         );
-
-        /*Navigator.pushNamed(context, '/payment', arguments: {'totalCost': totalCost, 'quantities': quantities});*/
       } else {
         print("Failed to send cart: $decodedResponse");
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(decodedResponse['message'] ?? 'Failed to send cart.'),
-            // ✅ Show error message
             backgroundColor: Colors.red,
             duration: Duration(seconds: 2),
           ),
@@ -83,13 +91,14 @@ class _BookingScreenState extends State<BookingScreen> {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text('An error occurred. Please try again.'),
-          // ✅ Show general error
           backgroundColor: Colors.red,
           duration: Duration(seconds: 2),
         ),
       );
     }
   }
+
+
 
   void _showLoginDialog(BuildContext context) {
     showDialog(
@@ -321,12 +330,19 @@ class _BookingScreenState extends State<BookingScreen> {
                                               SizedBox(width: 50.h,),
                                               GestureDetector(
                                                 onTap: () {
+                                                  final user = FirebaseAuth.instance.currentUser;
+                                                  if (user == null) {
+                                                    _showLoginDialog(
+                                                        context); // Show login dialog if user is not logged in
+                                                  } else {
                                                   setState(() {
                                                     if (!quantities.containsKey(
                                                         index)) {
                                                       quantities[index] = 1;
                                                     }
                                                   });
+
+                                                  }
                                                 },
                                                 child: Container(
                                                   width: 100.w,
@@ -457,15 +473,16 @@ class _BookingScreenState extends State<BookingScreen> {
               fontSize: 16.sp,
             ),
             ElevatedButton(
-              onPressed: () {
+              onPressed: () async{
                 final user = FirebaseAuth.instance.currentUser;
                 if (user == null) {
                   _showLoginDialog(
                       context); // Show login dialog if user is not logged in
                 } else {
+                  final cartProvider = Provider.of<CartProvider>(context, listen: false);
                   _sendCartData(
                       context, totalCost); // Proceed with sending cart data
-
+                  await cartProvider.fetchCartProducts(user.uid);
                   Navigator.push(context,
                       MaterialPageRoute(builder: (context) => CartScreen()));
                 }

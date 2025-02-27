@@ -6,9 +6,16 @@ import '../widgets/custom_position_widget.dart';
 import '../widgets/custom_text_formfield.dart';
 
 
-class SearchScreen extends StatelessWidget {
+class SearchScreen extends StatefulWidget {
    SearchScreen({super.key});
+
+  @override
+  State<SearchScreen> createState() => _SearchScreenState();
+}
+
+class _SearchScreenState extends State<SearchScreen> {
 TextEditingController searchController=TextEditingController();
+
   @override
   Widget build(BuildContext context) {
 

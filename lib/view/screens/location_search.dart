@@ -9,6 +9,7 @@ import 'package:uuid/uuid.dart';
 
 import '../../providers/location_provider.dart';
 import '../widgets/custom_text_widget.dart';
+import 'home_screen.dart';
 
 class LocationSearch extends StatefulWidget {
   @override
@@ -112,9 +113,15 @@ class _LocationSearchState extends State<LocationSearch> {
               ),
               ElevatedButton(
                 onPressed: () {
-                  if (_selectedPosition != null) {
-                    locationProvider.updateLocation(_selectedPosition!, _selectedAddress);
-                    Navigator.pop(context);
+                  if (_selectedPosition != null) { // Replace with actual user ID from Firebase Auth
+                    locationProvider.updateLocation(
+                        _selectedPosition!, _selectedAddress);
+                    Navigator.pushReplacement(
+                      context,
+                      MaterialPageRoute(builder: (context) => HomeScreen()),
+                    );
+
+
                   }
                 },style: ElevatedButton.styleFrom(backgroundColor: Color(0xff5A5A5A),shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30))),
                 child: CustomText(

@@ -1,9 +1,8 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:provider/provider.dart';
 import '../../core/constants/app_colors.dart';
-import '../../core/utils/keyboard_utils.dart';
+
 import '../../models/user_model.dart';
 import '../../providers/navigation_provider.dart';
 import '../../providers/user_provider.dart';

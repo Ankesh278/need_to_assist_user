@@ -7,7 +7,9 @@ class CartProvider with ChangeNotifier {
 
   List<Map<String, dynamic>> get cartItems => _cartItems;
 
-  Future<void> fetchCartItems(String userId) async {
+  String? _cartId; // Add a variable to store cartId
+
+  Future<void> fetchCartProducts(String userId) async {
     final url = Uri.parse('http://15.207.112.43:8080/api/user/getcartitem/$userId');
     try {
       final response = await http.get(url);
@@ -17,10 +19,10 @@ class CartProvider with ChangeNotifier {
         print("Fetched Data: $decodedData"); // Debugging: Print API response
 
         if (decodedData.containsKey('cart')) {
-          if (decodedData['cart'] is List) {
-            _cartItems = List<Map<String, dynamic>>.from(decodedData['cart']);
-          } else if (decodedData['cart'] is Map<String, dynamic>) {
-            _cartItems = [decodedData['cart']];
+          _cartId = decodedData['cart']['_id']; // Extract cartId
+
+          if (decodedData['cart'] is Map<String, dynamic>) {
+            _cartItems = List<Map<String, dynamic>>.from(decodedData['cart']['products'] ?? []);
           } else {
             _cartItems = [];
           }
@@ -31,12 +33,16 @@ class CartProvider with ChangeNotifier {
 
         notifyListeners();
       } else {
-        throw Exception('Failed to load cart items');
+        throw Exception('Failed to load products');
       }
     } catch (e) {
-      print("Error fetching cart: $e");
+      print("Error fetching products: $e");
     }
   }
+
+  String? get cartId => _cartId; // Getter for cartId
+
+
 
   Future<void> deleteCartItem(String userId, String productId) async {
     final url = Uri.parse('http://15.207.112.43:8080/api/user/cart/$userId/$productId');

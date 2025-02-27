@@ -1,17 +1,26 @@
 import 'dart:convert';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:provider/provider.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+import 'package:http/http.dart' as http;
 import '../../core/constants/app_colors.dart';
 import '../../core/utils/keyboard_utils.dart';
-import '../../providers/service_provider.dart';
 import '../widgets/custom_position_widget.dart';
 import '../widgets/custom_text_widget.dart';
 class PaymentScreen extends StatefulWidget {
   final double totalCost;
-  final Map<int, int> quantities;
-  const PaymentScreen({super.key, required this.totalCost, required this.quantities});
+  final String cartId;
+  final String selectedDate; // Add selected date
+  final String selectedTimeSlot; // Add selected time slot
+
+  const PaymentScreen({
+    super.key,
+    required this.totalCost,
+
+    required this.selectedDate,
+    required this.selectedTimeSlot, required this.cartId,
+  });
 
   @override
   State<PaymentScreen> createState() => _PaymentScreenState();
@@ -230,7 +239,7 @@ class _PaymentScreenState extends State<PaymentScreen> {
                                 child: GestureDetector(
                                   onTap: () async{
 
-    final serviceProvider = Provider.of<ServiceProvider>(context, listen: false);
+   /* final serviceProvider = Provider.of<ServiceProvider>(context, listen: false);
     List<Map<String, dynamic>> bookedServices = widget.quantities.entries.map((entry) {
     final service = serviceProvider.filteredServices[entry.key];
     return {
@@ -250,6 +259,97 @@ class _PaymentScreenState extends State<PaymentScreen> {
 
     // Navigate to Profile Screen (My Booking Section)
     Navigator.pushNamed(context, '/profile');
+*/
+
+                                      try {
+                                        // Get Firebase User ID
+                                        final user = FirebaseAuth.instance
+                                            .currentUser;
+                                        print("user info:${user}");
+                                        if (user == null) {
+                                          ScaffoldMessenger.of(context)
+                                              .showSnackBar(
+                                            SnackBar(content: Text(
+                                                "User not logged in")),
+                                          );
+                                          return;
+                                        }
+                                        String userId = user.uid;
+
+                                        // Fetch User Location from Firestore
+                                        DocumentSnapshot userDoc = await FirebaseFirestore
+                                            .instance
+                                            .collection('users')
+                                            .doc(userId)
+                                            .get();
+
+                                        if (!userDoc.exists ||
+                                            userDoc.data() == null) {
+                                          ScaffoldMessenger.of(context)
+                                              .showSnackBar(
+                                            SnackBar(content: Text(
+                                                "User location not found")),
+                                          );
+                                          return;
+                                        }
+
+                                        Map<String, dynamic> userData = userDoc
+                                            .data() as Map<String, dynamic>;
+                                        List<double> userLocation = [
+                                          (userData['longitude'] as num)
+                                              .toDouble(),
+                                          (userData['latitude'] as num)
+                                              .toDouble(),
+                                        ];
+
+                                        // Construct Payment Data
+                                        Map<String, dynamic> paymentData = {
+                                          "userId": FirebaseAuth.instance.currentUser!.uid,
+                                          "cartId": widget.cartId,
+                                          // Replace with actual cartId
+                                          "paymentMethod": "Cash on Delivery",
+                                          "userLocation": userLocation,
+                                          "date": widget.selectedDate,
+                                          "timeSlot": widget.selectedTimeSlot
+                                        };
+                                        print(paymentData);
+
+                                        // Send Data to API
+                                        final response = await http.post(
+                                          Uri.parse(
+                                              'http://15.207.112.43:8080/api/service/booking'),
+                                          // Replace with actual API URL
+                                          headers: {
+                                            "Content-Type": "application/json"
+                                          },
+                                          body: jsonEncode(paymentData),
+                                        );
+
+                                        if (response.statusCode == 200) {
+
+                                          print(response.body);
+                                          ScaffoldMessenger.of(context)
+                                              .showSnackBar(
+                                            SnackBar(content: Text(
+                                                "Payment successful")),
+                                          );
+                                           // Navigate to Profile Screen
+                                        } else {
+                                          print(response.body);
+                                          ScaffoldMessenger.of(context)
+                                              .showSnackBar(
+                                            SnackBar(content: Text(
+                                                "Payment failed: ${response
+                                                    .body}")),
+                                          );
+                                        }
+                                      } catch (e) {
+                                        ScaffoldMessenger.of(context)
+                                            .showSnackBar(
+                                          SnackBar(content: Text("Error: $e")),
+                                        );
+                                      }
+
 
                                   },
                                   child: Container(width: 233.w,height: 28.h,

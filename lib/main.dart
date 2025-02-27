@@ -1,9 +1,12 @@
 
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:hive_flutter/adapters.dart';
-import 'package:need_to_assist/providers/auth_provider.dart';
+import 'package:need_to_assist/providers/auth_provider.dart' as local_auth;
+
+
 import 'package:need_to_assist/providers/cart_provider.dart';
 import 'package:need_to_assist/providers/location_provider.dart';
 import 'package:need_to_assist/providers/navigation_provider.dart';
@@ -12,7 +15,7 @@ import 'package:need_to_assist/providers/service_provider.dart';
 import 'package:need_to_assist/providers/user_provider.dart';
 import 'package:need_to_assist/push_notification_api.dart';
 import 'package:need_to_assist/view/screens/booking_screen.dart';
-import 'package:need_to_assist/view/screens/cart_screen.dart';
+import 'package:need_to_assist/view/screens/calendar.dart';
 import 'package:need_to_assist/view/screens/detail_screen.dart';
 import 'package:need_to_assist/view/screens/home_screen.dart';
 import 'package:need_to_assist/view/screens/location_search.dart';
@@ -46,7 +49,7 @@ void main() async {
     MultiProvider(
       providers: [
         ChangeNotifierProvider(create: (_) => NavigationProvider()),
-        ChangeNotifierProvider(create: (_) => AuthProvider()),
+        ChangeNotifierProvider(create: (_) =>local_auth.AuthProvider()),
         ChangeNotifierProvider(create: (_) => OnboardingProvider()),
         ChangeNotifierProvider(create: (_) => UserProvider()),
         ChangeNotifierProvider(create: (_)=>ProfileViewModel()),
@@ -63,6 +66,12 @@ void main() async {
 
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
+  /// Checks FirebaseAuth for logged-in user
+  String _getInitialRoute() {
+    final User? user = FirebaseAuth.instance.currentUser;
+    return (user != null) ? '/home' : '/';
+  }
+
 
   @override
   Widget build(BuildContext context) {
@@ -76,7 +85,7 @@ class MyApp extends StatelessWidget {
             colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
             useMaterial3: true,
           ),
-          initialRoute: '/',
+          initialRoute: _getInitialRoute(),
           onGenerateRoute: (settings) {
             switch (settings.name) {
               case '/':
@@ -122,11 +131,12 @@ class MyApp extends StatelessWidget {
                     totalCost: (args != null && args.containsKey('totalCost'))
                         ? (args['totalCost'] as num).toDouble()
                         : 0.0,
-                    quantities: (args != null && args.containsKey('quantities'))
-                        ? args['quantities'] as Map<int, int>
-                        : {}, // Default to 0.0 if null or missing
+                    cartId: args?['cartId']??'',
+                    selectedDate: args?['selectedDate'] ?? '', // Ensure non-null value
+                    selectedTimeSlot: args?['selectedTimeSlot'] ?? '',
                   ),
                 );
+
 
               case '/profile':
                 return MaterialPageRoute(builder: (_) => const ProfileScreen());

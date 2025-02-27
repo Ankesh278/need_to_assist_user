@@ -1,4 +1,5 @@
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:need_to_assist/view/screens/notification_screen.dart';
@@ -83,7 +84,12 @@ class _HomePageState extends State<HomePage> {
   Widget build(BuildContext context) {
     final locationProvider = Provider.of<LocationProvider>(context);
     final categoryProvider = Provider.of<CategoryProvider>(context);
-    return Scaffold(
+    return WillPopScope(
+        onWillPop: () async {
+      return false; // Prevents navigating back to onboarding
+    },
+child:
+    Scaffold(
       backgroundColor: ColorUtils.background,
       body: SafeArea(
         child:
@@ -119,18 +125,27 @@ class _HomePageState extends State<HomePage> {
                   fontWeight:FontWeight.w600 ,
                   fontSize: 16.sp,),
               )),
-          Positioned(
+            Positioned(
               top: 16.h,
               left: 340.w,
-              child:InkWell(
-                onTap: (){
-                  Provider.of<NavigationProvider>(context, listen: false).navigateTo(
-                    '/profile',
-                  );
+              child: StreamBuilder<User?>(
+                stream: FirebaseAuth.instance.authStateChanges(),
+                builder: (context, snapshot) {
+                  if (snapshot.hasData && snapshot.data != null) {
+                    return InkWell(
+                      onTap: () {
+                        Provider.of<NavigationProvider>(context, listen: false).navigateTo('/profile');
+                      },
+                      child: const Icon(Icons.person, size: 30),
+                    );
+                  } else {
+                    return const SizedBox.shrink(); // Hides the icon if user is not logged in
+                  }
                 },
-                  child: Icon(Icons.person,size: 30,))
-          ),
-          PositionedWidget(
+              ),
+            ),
+
+            PositionedWidget(
               top: 97.h,
               left: 23.w,
               width:135.w, height: 90.h,
@@ -455,6 +470,7 @@ class _HomePageState extends State<HomePage> {
         ],
         )
       ),
+    )
     );
   }
 }

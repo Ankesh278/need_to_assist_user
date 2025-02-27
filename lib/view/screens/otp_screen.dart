@@ -50,7 +50,7 @@ class _OtpScreenState extends State<OtpScreen> {
     final isSuccess = await authProvider.verifyOTP(otp);
 
     if (isSuccess) {
-      Provider.of<NavigationProvider>(context, listen: false).navigateTo('/home');
+      Provider.of<NavigationProvider>(context, listen: false).navigateAndRemoveUntil('/home');
     }
 
     ScaffoldMessenger.of(context).showSnackBar(

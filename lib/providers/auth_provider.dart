@@ -1,5 +1,9 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+
+import 'location_provider.dart';
 
 
   class AuthProvider with ChangeNotifier {
@@ -10,16 +14,25 @@ import 'package:flutter/material.dart';
   bool get isLoggedIn => _auth.currentUser != null;
 
   bool get isResendEnabled => _isResendEnabled;
-  Future<void> logout(BuildContext context) async {
-    try {
-      await _auth.signOut();
-      notifyListeners(); // Notify UI of changes
-    } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Error logging out: ${e.toString()}')),
-      );
-    }
+  Future<void> logoutUser(BuildContext context) async {
+    final FirebaseAuth auth = FirebaseAuth.instance;
+    await auth.signOut();
+
+
+    // ✅ Clear saved location when logging out
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    await prefs.remove("saved_address");
+    await prefs.remove("saved_lat");
+    await prefs.remove("saved_lng");
+
+    // ✅ Reset location data in LocationProvider
+    final locationProvider = Provider.of<LocationProvider>(context, listen: false);
+    locationProvider.clearLocation();
+
+    // Navigate to login screen
+    Navigator.pushReplacementNamed(context, "/login");
   }
+
   User? _user;
   User? get user => _user;
 
