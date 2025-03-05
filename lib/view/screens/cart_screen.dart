@@ -30,7 +30,6 @@ class _CartScreenState extends State<CartScreen> {
       setState(() {
         userId = user.uid;
       });
-
       await Provider.of<CartProvider>(context, listen: false)
           .fetchCartProducts(user.uid);
     }
@@ -42,19 +41,23 @@ class _CartScreenState extends State<CartScreen> {
     final cartItems = cartProvider.cartItems;
     final cartId = cartProvider.cartId;
 
-    double totalCost =
-    cartItems.fold(0, (sum, item) => sum + ((item['price'] as num?) ?? 0));
+    double totalCost = cartItems.fold(0, (sum, item) => sum + ((item['price'] as num?) ?? 0) * ((item['quantity'] as num?) ?? 1));
 
-    return Scaffold(
+    return WillPopScope(
+        onWillPop: () async {
+      return false; // Prevents navigating back to onboarding
+    },child:
+      Scaffold(
       backgroundColor: ColorUtils.background,
       appBar: AppBar(
         title: const Text("My Cart", style: TextStyle(color: Colors.black)),
         backgroundColor: Colors.white,
+        automaticallyImplyLeading: false,
         elevation: 0,
         iconTheme: const IconThemeData(color: Colors.black),
       ),
       body: RefreshIndicator(
-        onRefresh: _getCurrentUserAndFetchCart, // ✅ Pull to refresh cart items
+        onRefresh: _getCurrentUserAndFetchCart,
         child: cartItems.isEmpty
             ? const Center(child: Text("No items in cart"))
             : Column(
@@ -65,54 +68,45 @@ class _CartScreenState extends State<CartScreen> {
                 itemCount: cartItems.length,
                 itemBuilder: (context, index) {
                   final item = cartItems[index];
-                  final String? imageUrl = item['image']; // ✅ Fetch image URL
+                  final String? imageUrl = item['image'];
 
                   return Card(
                     elevation: 3,
-                    margin: const EdgeInsets.symmetric(
-                        vertical: 8, horizontal: 10),
+                    margin: const EdgeInsets.symmetric(vertical: 8, horizontal: 10),
                     color: Colors.white,
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(12),
                     ),
                     child: Padding(
-                      padding: const EdgeInsets.all(10),
+                      padding: const EdgeInsets.all(12),
                       child: Row(
+                        crossAxisAlignment: CrossAxisAlignment.center,
                         children: [
-                          // ✅ Product Image
                           ClipRRect(
                             borderRadius: BorderRadius.circular(10),
                             child: imageUrl != null && imageUrl.isNotEmpty
                                 ? CachedNetworkImage(
                               imageUrl: imageUrl,
-                              width: 60,
-                              height: 60,
+                              width: 80,
+                              height: 80,
                               fit: BoxFit.cover,
-                              placeholder: (context, url) =>
-                              const CircularProgressIndicator(),
-                              errorWidget: (context, url, error) =>
-                              const Icon(Icons.image_not_supported,
-                                  color: Colors.grey),
+                              placeholder: (context, url) => const CircularProgressIndicator(),
+                              errorWidget: (context, url, error) => const Icon(Icons.image_not_supported, color: Colors.grey),
                             )
                                 : Container(
-                              width: 60,
-                              height: 60,
+                              width: 80,
+                              height: 80,
                               decoration: BoxDecoration(
                                 color: Colors.grey.shade200,
-                                borderRadius:
-                                BorderRadius.circular(10),
+                                borderRadius: BorderRadius.circular(10),
                               ),
-                              child: const Icon(Icons.shopping_cart,
-                                  color: Colors.black),
+                              child: const Icon(Icons.shopping_cart, color: Colors.black),
                             ),
                           ),
                           const SizedBox(width: 12),
-
-                          // ✅ Product Details
                           Expanded(
                             child: Column(
-                              crossAxisAlignment:
-                              CrossAxisAlignment.start,
+                              crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 CustomText(
                                   text: item['name'] ?? 'Unknown Item',
@@ -121,26 +115,31 @@ class _CartScreenState extends State<CartScreen> {
                                 ),
                                 const SizedBox(height: 5),
                                 CustomText(
-                                  text: "₹${(item['price'] ?? 0)}",
+                                  text: "Category: ${item['category'] ?? 'N/A'}",
                                   fontSize: 14,
-                                  fontWeight: FontWeight.w500,
                                   color: Colors.grey,
+                                ),
+                                const SizedBox(height: 5),
+                                CustomText(
+                                  text: "Quantity: ${item['quantity'] ?? 1}",
+                                  fontSize: 14,
+                                  color: Colors.grey,
+                                ),
+                                const SizedBox(height: 5),
+                                CustomText(
+                                  text: "₹${(item['price'] ?? 0) * (item['quantity'] ?? 1)}",
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.bold,
                                 ),
                               ],
                             ),
                           ),
-
-                          // ✅ Delete Button
                           IconButton(
-                            icon: const Icon(Icons.delete,
-                                color: Colors.red),
+                            icon: const Icon(Icons.delete, color: Colors.red),
                             onPressed: () async {
                               if (userId != null) {
-                                await Provider.of<CartProvider>(context,
-                                    listen: false)
-                                    .deleteCartItem(
-                                    userId!, item['ProductId']);
-                                _getCurrentUserAndFetchCart(); // ✅ Refresh cart after deletion
+                                await Provider.of<CartProvider>(context, listen: false).deleteCartItem(userId!, item['ProductId']);
+                                _getCurrentUserAndFetchCart();
                               }
                             },
                           ),
@@ -151,25 +150,17 @@ class _CartScreenState extends State<CartScreen> {
                 },
               ),
             ),
-
-            // ✅ Checkout Section
             if (cartItems.isNotEmpty)
               Container(
-                padding: const EdgeInsets.symmetric(
-                    horizontal: 20, vertical: 15),
+                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 15),
                 decoration: BoxDecoration(
                   color: Colors.white,
-                  boxShadow: [
-                    BoxShadow(
-                        color: Colors.grey.shade300, blurRadius: 5),
-                  ],
-                  borderRadius: const BorderRadius.vertical(
-                      top: Radius.circular(15)),
+                  boxShadow: [BoxShadow(color: Colors.grey.shade300, blurRadius: 5)],
+                  borderRadius: const BorderRadius.vertical(top: Radius.circular(15)),
                 ),
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    // ✅ Show Total Cost
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
@@ -182,8 +173,6 @@ class _CartScreenState extends State<CartScreen> {
                       ],
                     ),
                     const SizedBox(height: 10),
-
-                    // ✅ Checkout Button
                     SizedBox(
                       width: double.infinity,
                       child: ElevatedButton(
@@ -193,27 +182,19 @@ class _CartScreenState extends State<CartScreen> {
                           Navigator.push(
                             context,
                             MaterialPageRoute(
-                              builder: (context) =>
-                                  ChooseSlotScreen(
-                                    totalCost: totalCost,
-                                    cartId: cartId,
-                                  ),
+                              builder: (context) => ChooseSlotScreen(
+                                totalCost: totalCost,
+                                cartId: cartId,
+                              ),
                             ),
                           );
                         },
                         style: ElevatedButton.styleFrom(
                           backgroundColor: Colors.black,
-                          padding:
-                          const EdgeInsets.symmetric(vertical: 14),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(10),
-                          ),
+                          padding: const EdgeInsets.symmetric(vertical: 14),
+                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
                         ),
-                        child: const Text(
-                          "Proceed to Checkout",
-                          style: TextStyle(
-                              fontSize: 16, color: Colors.white),
-                        ),
+                        child: const Text("Proceed to Checkout", style: TextStyle(fontSize: 16, color: Colors.white)),
                       ),
                     ),
                   ],
@@ -222,6 +203,7 @@ class _CartScreenState extends State<CartScreen> {
           ],
         ),
       ),
+      )
     );
   }
 }

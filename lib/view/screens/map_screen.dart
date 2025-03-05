@@ -23,7 +23,7 @@ class _MapSampleState extends State<MapSample> {
   @override
   void initState() {
     super.initState();
-    Provider.of<LocationProvider>(context, listen: false).loadSavedLocation();
+    Provider.of<LocationProvider>(context, listen: false).loadSavedLocation(context);
   }
 
   @override

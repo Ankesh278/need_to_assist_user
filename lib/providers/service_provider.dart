@@ -152,5 +152,9 @@ class ServiceProvider with ChangeNotifier {
     _filteredServices = _allServices.where((service) => service.categoryName == categoryName).toList();
     notifyListeners();
   }
+  void resetFilter() {
+    _filteredServices = _allServices; // Reset to original list
+    notifyListeners();
+  }
 }
 

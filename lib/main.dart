@@ -5,8 +5,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:hive_flutter/adapters.dart';
 import 'package:need_to_assist/providers/auth_provider.dart' as local_auth;
-
-
 import 'package:need_to_assist/providers/cart_provider.dart';
 import 'package:need_to_assist/providers/location_provider.dart';
 import 'package:need_to_assist/providers/navigation_provider.dart';
@@ -15,7 +13,6 @@ import 'package:need_to_assist/providers/service_provider.dart';
 import 'package:need_to_assist/providers/user_provider.dart';
 import 'package:need_to_assist/push_notification_api.dart';
 import 'package:need_to_assist/view/screens/booking_screen.dart';
-import 'package:need_to_assist/view/screens/calendar.dart';
 import 'package:need_to_assist/view/screens/detail_screen.dart';
 import 'package:need_to_assist/view/screens/home_screen.dart';
 import 'package:need_to_assist/view/screens/location_search.dart';
@@ -154,6 +151,7 @@ class MyApp extends StatelessWidget {
                 return MaterialPageRoute(builder: (_) => const OnboardingScreen());
             }
           },
+
         );
       },
     );

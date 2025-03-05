@@ -19,7 +19,11 @@ TextEditingController searchController=TextEditingController();
   @override
   Widget build(BuildContext context) {
 
-    return GestureDetector(
+    return WillPopScope(
+        onWillPop: () async {
+      return false; // Prevents navigating back to onboarding
+    },child:
+      GestureDetector(
       behavior: HitTestBehavior.opaque,
       onTap: (){
         dismissKeyboard(context);
@@ -29,17 +33,6 @@ TextEditingController searchController=TextEditingController();
         body: SafeArea(
           child: Stack(
             children: [
-              PositionedWidget(
-                top: 30.h,
-                left: 7.w,
-                width: 30.w,height: 30.h,
-                child: IconButton(
-                  icon: Icon(Icons.arrow_back_ios_new_sharp,),
-                  onPressed: () {
-                    Navigator.pop(context);
-                  },
-                ),
-              ),
               PositionedWidget(top: 30.h, left: 43.w, width:329.w, height: 47.h, child:CustomTextFormField(
                 controller: searchController,
                 labelText: "Search",
@@ -55,6 +48,7 @@ TextEditingController searchController=TextEditingController();
           ),
         ),
       ),
+      )
     );
   }
 }

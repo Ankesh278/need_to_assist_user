@@ -1,7 +1,10 @@
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:provider/provider.dart';
+import '../../core/constants/app_colors.dart';
+import '../../providers/cart_provider.dart';
 import '../../providers/navigation_provider.dart';
 import '../widgets/custom_position_widget.dart';
 import '../widgets/custom_text_widget.dart';
@@ -25,6 +28,11 @@ class _DetailScreenState extends State<DetailScreen> {
   }
   @override
   Widget build(BuildContext context) {
+
+    final cartProvider = Provider.of<CartProvider>(context);
+    final productId = service.id;
+    final isInCart = cartProvider.quantities.containsKey(productId);
+
     return Scaffold(
       backgroundColor: Color(0xffF9F9FC),
       body: SafeArea(
@@ -157,27 +165,46 @@ class _DetailScreenState extends State<DetailScreen> {
                                         fontWeight: FontWeight.w600,
                                       ),
                                       SizedBox(width: 50.h,),
-                                      GestureDetector(
-                                        onTap: () {
-                                          Provider.of<NavigationProvider>(context, listen: false).goBack();
-                                        },
-                                        child: Container(
-                                          width: 100.w,
-                                          height: 35.h,
-                                          decoration: BoxDecoration(
-                                            borderRadius: BorderRadius.circular(4.sp),
-                                            color: Color(0xff404140),
-                                          ),
-                                          child: Center(
-                                            child: CustomText(
-                                              text: "Book Now",
-                                              fontSize: 14.sp,
-                                              color: Colors.white,
-                                              fontWeight: FontWeight.w400,
-                                            ),
-                                          ),
-                                        ),
-                                      ),
+                              GestureDetector(
+                                onTap: () {
+                                  final user = FirebaseAuth.instance.currentUser;
+                                  if (user != null) {
+                                    if (isInCart) {
+                                      cartProvider.removeFromCart(context, user.uid, productId);
+                                      _showSnackbar(context, 'Item removed from cart', Colors.red);
+                                    } else {
+                                      cartProvider.addToCart(context, {
+                                        'id': service.id,
+                                        'name': service.name,
+                                        'price': service.price,
+                                        'categoryName': service.categoryName,
+                                        'image': service.image,
+                                      });
+                                      _showSnackbar(context, 'Item added to cart', Colors.green);
+                                    }
+                                  }
+                                  else{
+                                  _showLoginDialog(context);
+
+                                  }
+                                },
+                                child: Container(
+                                  width: 100.w,
+                                  height: 35.h,
+                                  decoration: BoxDecoration(
+                                    borderRadius: BorderRadius.circular(4.sp),
+                                    color: Color(0xff404140),
+                                  ),
+                                  child: Center(
+                                    child: CustomText(
+                                      text: isInCart ? 'Remove' : 'Add',
+                                      fontSize: 14.sp,
+                                      color: Colors.white,
+                                      fontWeight: FontWeight.w600,
+                                    ),
+                                  ),
+                                ),
+                              ),
 
                                     ],
                                   ),
@@ -450,6 +477,34 @@ class _DetailScreenState extends State<DetailScreen> {
           ),
         );
       },
+    );
+  }
+  void _showSnackbar(BuildContext context, String message, Color color) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(
+          message,
+          style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+        ),
+        backgroundColor: color,
+        duration: Duration(seconds: 2),
+      ),
+    );
+  }
+  void _showLoginDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: CustomText(text:'Login Required'),
+        backgroundColor: ColorUtils.background,
+        content: CustomText(text: 'Please log in to proceed with booking.'),
+        actions: [
+          TextButton(
+            onPressed: () => Provider.of<NavigationProvider>(context, listen: false).navigateTo('/login'),
+            child: CustomText(text:'OK'),
+          ),
+        ],
+      ),
     );
   }
 

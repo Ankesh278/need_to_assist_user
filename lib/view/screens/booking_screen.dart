@@ -4,6 +4,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:http/http.dart' as http;
+import 'package:need_to_assist/core/constants/app_colors.dart';
 import 'package:need_to_assist/view/screens/cart_screen.dart';
 import 'package:need_to_assist/view/screens/login_screen.dart';
 import 'package:provider/provider.dart';
@@ -20,115 +21,8 @@ class BookingScreen extends StatefulWidget {
   State<BookingScreen> createState() => _BookingScreenState();
 }
 class _BookingScreenState extends State<BookingScreen> {
-  Map<int, int> quantities = {};
-  void _sendCartData(BuildContext context, double totalCost) async {
-    final url = Uri.parse('http://15.207.112.43:8080/api/user/cart');
-    final user = FirebaseAuth.instance.currentUser;
-    if (user == null) {
-      _showLoginDialog(context);
-      return;
-    }
-    final userId = user.uid;
-
-    final request = http.MultipartRequest('POST', url);
-    request.fields['userId'] = userId;
-
-    final filteredServices = Provider.of<ServiceProvider>(context, listen: false).filteredServices;
-
-    bool hasItems = false;
-
-    for (var entry in quantities.entries) {
-      if (entry.value > 0 && entry.key < filteredServices.length) { // ✅ Ensure valid index
-        final product = filteredServices[entry.key];
-        request.fields['ProductId'] = product.id;
-        request.fields['name'] = product.name;
-        request.fields['price'] = product.price.toString();
-        request.fields['category'] = product.categoryName;
-        request.fields['image'] = product.image;
-
-        hasItems = true;
-
-            }
-    }
-
-    if (!hasItems) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('Please add at least one valid item to the cart.'),
-          backgroundColor: Colors.orange,
-          duration: Duration(seconds: 2),
-        ),
-      );
-      return;
-    }
-
-    try {
-      final response = await request.send();
-      final responseBody = await response.stream.bytesToString();
-      final decodedResponse = json.decode(responseBody);
-
-      if (response.statusCode == 201) {
-        print("Cart sent successfully: $decodedResponse");
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(decodedResponse['message'] ?? 'Cart sent successfully!'),
-            backgroundColor: Colors.green,
-            duration: Duration(seconds: 2),
-          ),
-        );
-      } else {
-        print("Failed to send cart: $decodedResponse");
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(decodedResponse['message'] ?? 'Failed to send cart.'),
-            backgroundColor: Colors.red,
-            duration: Duration(seconds: 2),
-          ),
-        );
-      }
-    } catch (e) {
-      print("Error: $e");
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('An error occurred. Please try again.'),
-          backgroundColor: Colors.red,
-          duration: Duration(seconds: 2),
-        ),
-      );
-    }
-  }
 
 
-
-  void _showLoginDialog(BuildContext context) {
-    showDialog(
-      context: context,
-      builder: (context) {
-        return AlertDialog(
-          title: Text("Login Required"),
-          content: Text("You need to log in first to proceed with booking."),
-          actions: [
-            TextButton(
-              onPressed: () {
-                Navigator.pop(context); // Close dialog
-              },
-              child: Text("Cancel"),
-            ),
-            ElevatedButton(
-              onPressed: () {
-                Navigator.pop(context);
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => LoginPage()),
-                );
-              },
-              child: Text("Login"),
-            ),
-          ],
-        );
-      },
-    );
-  }
 
 
   @override
@@ -136,14 +30,11 @@ class _BookingScreenState extends State<BookingScreen> {
     final filteredServices = Provider
         .of<ServiceProvider>(context)
         .filteredServices;
-    double totalCost = 0;
-    for (var entry in quantities.entries) {
-      totalCost += filteredServices[entry.key].price * entry.value;
-    }
     return Scaffold(
       backgroundColor: Color(0xffF9F9FC),
       body: SafeArea(
-          child: Stack(
+          child:
+          Stack(
             children: [
               PositionedWidget(
                 top: 9.h,
@@ -244,9 +135,12 @@ class _BookingScreenState extends State<BookingScreen> {
                   shrinkWrap: true,
                   itemBuilder: (context, index) {
                     final product = filteredServices[index];
+                    final cartProvider = Provider.of<CartProvider>(context);
+                    final productId = product.id;
+                    final isInCart = cartProvider.quantities.containsKey(productId);
+
                     return Padding(
-                      padding: EdgeInsets.symmetric(
-                          vertical: 10.h, horizontal: 1.w),
+                      padding: EdgeInsets.symmetric(vertical: 10.h, horizontal: 1.w),
                       child: Column(
                         children: [
                           Stack(
@@ -259,7 +153,7 @@ class _BookingScreenState extends State<BookingScreen> {
                                   borderRadius: BorderRadius.circular(9.r),
                                   boxShadow: [
                                     BoxShadow(
-                                      color: Colors.black.withValues(blue: 0.2),
+                                      color: Colors.black.withOpacity(0.2),
                                       offset: Offset(0, 0),
                                       blurRadius: 2.r,
                                     ),
@@ -268,7 +162,6 @@ class _BookingScreenState extends State<BookingScreen> {
                                 ),
                                 child: Row(
                                   children: [
-                                    // Product Image
                                     ClipRRect(
                                       borderRadius: BorderRadius.circular(8.r),
                                       child: CachedNetworkImage(
@@ -277,20 +170,14 @@ class _BookingScreenState extends State<BookingScreen> {
                                         height: 100.h,
                                         fit: BoxFit.cover,
                                         errorWidget: (context, url, error) =>
-                                            Image.asset(
-                                                'assets/images/default.png',
-                                                fit: BoxFit.cover),
+                                            Image.asset('assets/images/default.png', fit: BoxFit.cover),
                                       ),
                                     ),
                                     SizedBox(width: 10.w),
-
-                                    // Product Details
                                     Expanded(
                                       child: Column(
-                                        crossAxisAlignment: CrossAxisAlignment
-                                            .start,
-                                        mainAxisAlignment: MainAxisAlignment
-                                            .center,
+                                        crossAxisAlignment: CrossAxisAlignment.start,
+                                        mainAxisAlignment: MainAxisAlignment.center,
                                         children: [
                                           CustomText(
                                             text: product.name,
@@ -298,18 +185,13 @@ class _BookingScreenState extends State<BookingScreen> {
                                             fontSize: 16.sp,
                                           ),
                                           SizedBox(height: 8.h),
-
                                           Row(
                                             children: [
-                                              Icon(Icons.star,
-                                                  color: Color(0xff5A5A5A),
-                                                  size: 18.sp),
+                                              Icon(Icons.star, color: Color(0xff5A5A5A), size: 18.sp),
                                               SizedBox(width: 5.w),
-                                              CustomText(
-                                                  text: '2.5', fontSize: 10.sp),
+                                              CustomText(text: '2.5', fontSize: 10.sp),
                                               SizedBox(width: 5.w),
-                                              CustomText(
-                                                  text: '4.5', fontSize: 10.sp),
+                                              CustomText(text: '4.5', fontSize: 10.sp),
                                               SizedBox(width: 20.w),
                                               CustomText(
                                                 text: '* ${product.time} mins',
@@ -327,110 +209,54 @@ class _BookingScreenState extends State<BookingScreen> {
                                                 fontSize: 16.sp,
                                                 fontWeight: FontWeight.w600,
                                               ),
-                                              SizedBox(width: 50.h,),
+                                              Spacer(),
                                               GestureDetector(
                                                 onTap: () {
                                                   final user = FirebaseAuth.instance.currentUser;
-                                                  if (user == null) {
-                                                    _showLoginDialog(
-                                                        context); // Show login dialog if user is not logged in
-                                                  } else {
-                                                  setState(() {
-                                                    if (!quantities.containsKey(
-                                                        index)) {
-                                                      quantities[index] = 1;
+                                                  if (user != null) {
+                                                    if (isInCart) {
+                                                      cartProvider.removeFromCart(context, user.uid, productId);
+                                                      _showSnackbar(context, 'Item removed from cart', Colors.red);
+                                                    } else {
+                                                      cartProvider.addToCart(context, {
+                                                        'id': product.id,
+                                                        'name': product.name,
+                                                        'price': product.price,
+                                                        'categoryName': product.categoryName,
+                                                        'image': product.image,
+                                                      });
+                                                      _showSnackbar(context, 'Item added to cart', Colors.green);
                                                     }
-                                                  });
-
+                                                  }
+                                                  else{
+                                                    _showLoginDialog(context);
                                                   }
                                                 },
                                                 child: Container(
                                                   width: 100.w,
                                                   height: 35.h,
                                                   decoration: BoxDecoration(
-                                                    borderRadius: BorderRadius
-                                                        .circular(4.sp),
+                                                    borderRadius: BorderRadius.circular(4.sp),
                                                     color: Color(0xff404140),
                                                   ),
-                                                  child: quantities.containsKey(
-                                                      index)
-                                                      ? Row(
-                                                    mainAxisAlignment: MainAxisAlignment
-                                                        .spaceEvenly,
-                                                    children: [
-                                                      GestureDetector(
-                                                        onTap: () {
-                                                          setState(() {
-                                                            if (quantities[index]! >
-                                                                1) {
-                                                              quantities[index] =
-                                                                  quantities[index]! -
-                                                                      1;
-                                                            } else {
-                                                              quantities.remove(
-                                                                  index);
-                                                            }
-                                                          });
-                                                        },
-                                                        child: Icon(
-                                                          Icons.remove, size: 20
-                                                            .sp, color: Colors
-                                                            .white,),
-                                                      ),
-                                                      Container(
-                                                        width: 25.w,
-                                                        height: 25.h,
-                                                        color: Colors.white,
-                                                        child: Center(
-                                                          child: CustomText(
-                                                            text: quantities[index]
-                                                                .toString(),
-                                                            fontSize: 14.sp,
-                                                            fontWeight: FontWeight
-                                                                .w400,
-                                                          ),
-                                                        ),
-                                                      ),
-                                                      GestureDetector(
-                                                        onTap: () {
-                                                          setState(() {
-                                                            quantities[index] =
-                                                                quantities[index]! +
-                                                                    1;
-                                                          });
-                                                        },
-                                                        child: Icon(
-                                                          Icons.add, size: 20
-                                                            .sp, color: Colors
-                                                            .white,),
-                                                      ),
-                                                    ],
-                                                  )
-                                                      : Center(
+                                                  child: Center(
                                                     child: CustomText(
-                                                      text: "Add",
+                                                      text: isInCart ? 'Remove' : 'Add',
                                                       fontSize: 14.sp,
                                                       color: Colors.white,
-                                                      fontWeight: FontWeight
-                                                          .w400,
+                                                      fontWeight: FontWeight.w600,
                                                     ),
                                                   ),
                                                 ),
                                               ),
-
                                             ],
                                           ),
                                           SizedBox(height: 10.h),
-                                          // View Details
                                           GestureDetector(
                                             onTap: () {
-                                              Provider.of<NavigationProvider>(
-                                                  context, listen: false)
-                                                  .navigateTo(
+                                              Provider.of<NavigationProvider>(context, listen: false).navigateTo(
                                                 '/detail',
-                                                arguments: {
-                                                  'service': filteredServices[index]
-                                                },
+                                                arguments: {'service': filteredServices[index]},
                                               );
                                             },
                                             child: CustomText(
@@ -448,60 +274,43 @@ class _BookingScreenState extends State<BookingScreen> {
                               ),
                             ],
                           ),
-
                         ],
                       ),
                     );
                   },
                 ),
               )
-
-
             ],
           )),
-      bottomSheet:
-       Container(
-        height: 80.h,
-        color: Colors.white,
-        padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 10.h),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            CustomText(
-              text: 'Total: ₹ $totalCost',
-              fontWeight: FontWeight.w600,
-              fontSize: 16.sp,
-            ),
-            ElevatedButton(
-              onPressed: () async{
-                final user = FirebaseAuth.instance.currentUser;
-                if (user == null) {
-                  _showLoginDialog(
-                      context); // Show login dialog if user is not logged in
-                } else {
-                  final cartProvider = Provider.of<CartProvider>(context, listen: false);
-                  _sendCartData(
-                      context, totalCost); // Proceed with sending cart data
-                  await cartProvider.fetchCartProducts(user.uid);
-                  Navigator.push(context,
-                      MaterialPageRoute(builder: (context) => CartScreen()));
-                }
 
-                /*   Navigator.pushNamed(context, '/payment', arguments: {'totalCost': totalCost,'quantities':quantities},
-                );*/
-              },
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Color(0xff404140),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(10.r),
-                ),
-              ),
-              child: Text(
-                'View Cart', style: const TextStyle(color: Colors.white),),
-            ),
-          ],
+    );
+  }
+  void _showSnackbar(BuildContext context, String message, Color color) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(
+          message,
+          style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
         ),
-      )
+        backgroundColor: color,
+        duration: Duration(seconds: 2),
+      ),
+    );
+  }
+  void _showLoginDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: CustomText(text:'Login Required'),
+        backgroundColor: ColorUtils.background,
+        content: CustomText(text: 'Please log in to proceed with booking.'),
+        actions: [
+          TextButton(
+            onPressed: () => Provider.of<NavigationProvider>(context, listen: false).navigateTo('/login'),
+            child: CustomText(text:'OK'),
+          ),
+        ],
+      ),
     );
   }
 }

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:need_to_assist/core/constants/app_colors.dart';
 import 'package:need_to_assist/providers/navigation_provider.dart';
 import 'package:need_to_assist/view/screens/booking_history.dart';
 import 'package:need_to_assist/view/screens/help_support.dart';
@@ -152,28 +153,31 @@ Provider.of<NavigationProvider>(context,listen:false).navigateAndRemoveUntil('/l
       context: context,
       builder: (context) => AlertDialog(
         title: const Text('Edit Profile'),
+        backgroundColor: ColorUtils.background,
         content: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
             TextField(controller: nameController, decoration: const InputDecoration(labelText: 'Name')),
             const SizedBox(height: 10),
             ElevatedButton(
-              onPressed: () => profileVM.updateProfileImage(),
-              child: const Text('Change Profile Picture'),
+              onPressed: () => profileVM.updateProfileImage(),style: ElevatedButton.styleFrom(
+              backgroundColor: ColorUtils.primaryDark
+            ),
+              child: const Text('Change Profile Picture',style: TextStyle(color: Colors.white),),
             ),
           ],
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text('Cancel'),
+            child: const CustomText(text: 'Cancel'),
           ),
           TextButton(
             onPressed: () {
               profileVM.updateProfileName(nameController.text);
               Navigator.pop(context);
             },
-            child: const Text('Save'),
+            child: const CustomText(text: 'Save')
           ),
         ],
       ),

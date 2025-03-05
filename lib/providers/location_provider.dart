@@ -1,10 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:geolocator/geolocator.dart';
+import 'package:need_to_assist/core/constants/app_colors.dart';
+import 'package:need_to_assist/view/widgets/custom_text_widget.dart';
+import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:geocoding/geocoding.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+
+import 'navigation_provider.dart';
 
 class LocationProvider extends ChangeNotifier {
   LatLng? _currentPosition;
@@ -127,7 +132,7 @@ class LocationProvider extends ChangeNotifier {
 
 
   // 🔹 Load saved location on app restart
-  Future<void> loadSavedLocation() async {
+  Future<void> loadSavedLocation(BuildContext context) async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     double? lat = prefs.getDouble("saved_lat");
     double? lng = prefs.getDouble("saved_lng");
@@ -143,10 +148,45 @@ class LocationProvider extends ChangeNotifier {
       );
     } else {
       _currentAddress = "No saved location";
+      User? user = FirebaseAuth.instance.currentUser;
+      if (user != null) {
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          _showAddLocationPopup(context);
+        });
+      }
     }
 
     notifyListeners();
   }
+
+  void _showAddLocationPopup(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          backgroundColor: ColorUtils.background,
+          title: const CustomText(text: "Add Your Location"),
+          content: const CustomText(text: "No saved location found. Please add a location."),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.pop(context);
+              },
+              child: const CustomText(text: "Cancel"),
+            ),
+            TextButton(
+              onPressed: () {
+                Provider.of<NavigationProvider>(context, listen: false).navigateTo('/map');
+
+              },
+              child: const CustomText(text: 'Add Location'),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
   void clearLocation() {
     _currentPosition = null;
     _currentAddress = "Select a location";
