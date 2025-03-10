@@ -4,12 +4,14 @@ import 'package:need_to_assist/core/constants/app_colors.dart';
 import 'package:need_to_assist/providers/navigation_provider.dart';
 import 'package:need_to_assist/view/screens/booking_history.dart';
 import 'package:need_to_assist/view/screens/help_support.dart';
+import 'package:need_to_assist/view/screens/setting_screen.dart';
 import 'package:need_to_assist/view/widgets/custom_position_widget.dart';
 import 'package:need_to_assist/view/widgets/custom_text_widget.dart';
 import 'package:need_to_assist/viewModel/profile_viewmodel.dart';
 import 'package:provider/provider.dart';
 import '../../providers/auth_provider.dart';
 import '../widgets/custom_listTile.dart';
+import 'manage_address.dart';
 
 class ProfileScreen extends StatelessWidget {
   const ProfileScreen({super.key});
@@ -103,7 +105,11 @@ class ProfileScreen extends StatelessWidget {
                           child: CustomListTile(imagePath: 'assets/images/profile_screen/leading_icon/2.png',title: 'My bookings',)),
                       Container(margin: EdgeInsets.symmetric(horizontal: 16.w,vertical: 8.h),
                         height: 1.h,color: Color(0xffD9D9D9),),
-                      CustomListTile(imagePath: 'assets/images/profile_screen/leading_icon/3.png',title: 'Manage addresses',),Container(margin: EdgeInsets.symmetric(horizontal: 16.w,vertical: 8.h),
+                      GestureDetector(
+                        onTap: (){
+                          Navigator.push(context, MaterialPageRoute(builder: (context)=>ManageAddressScreen()));
+                        },
+                          child: CustomListTile(imagePath: 'assets/images/profile_screen/leading_icon/3.png',title: 'Manage addresses',)),Container(margin: EdgeInsets.symmetric(horizontal: 16.w,vertical: 8.h),
                         height: 1.h,color: Color(0xffD9D9D9),),
                       CustomListTile(imagePath: 'assets/images/profile_screen/leading_icon/4.png',title: 'Manage payment methods',),
                     ],
@@ -120,7 +126,10 @@ class ProfileScreen extends StatelessWidget {
               )]),
                   child: Column(mainAxisAlignment: MainAxisAlignment.spaceAround,
                     children: [
-                      CustomListTile(imagePath: 'assets/images/profile_screen/leading_icon/5.png',title: 'Settings',),
+                      GestureDetector(onTap: (){
+                        Navigator.push(context, MaterialPageRoute(builder: (context)=>SettingsScreen()));
+                      },
+                          child: CustomListTile(imagePath: 'assets/images/profile_screen/leading_icon/5.png',title: 'Settings',)),
                       Container(margin: EdgeInsets.symmetric(horizontal: 16.w,),
                         height: 1.h,color: Color(0xffD9D9D9),),
                       CustomListTile(imagePath: 'assets/images/profile_screen/leading_icon/6.png',title: 'About',),

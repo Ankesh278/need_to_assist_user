@@ -260,7 +260,6 @@ class _PaymentScreenState extends State<PaymentScreen> {
     // Navigate to Profile Screen (My Booking Section)
     Navigator.pushNamed(context, '/profile');
 */
-
                                       try {
                                         // Get Firebase User ID
                                         final user = FirebaseAuth.instance
@@ -428,7 +427,6 @@ class _PaymentScreenState extends State<PaymentScreen> {
                   borderRadius: BorderRadius.circular(50.r),
                   color: const Color(0xffD9D9D9),
                 ),
-
               ),
             ),
           ),

@@ -148,12 +148,7 @@ class LocationProvider extends ChangeNotifier {
       );
     } else {
       _currentAddress = "No saved location";
-      User? user = FirebaseAuth.instance.currentUser;
-      if (user != null) {
-        WidgetsBinding.instance.addPostFrameCallback((_) {
-          _showAddLocationPopup(context);
-        });
-      }
+
     }
 
     notifyListeners();
@@ -175,10 +170,13 @@ class LocationProvider extends ChangeNotifier {
               child: const CustomText(text: "Cancel"),
             ),
             TextButton(
-              onPressed: () {
-                Provider.of<NavigationProvider>(context, listen: false).navigateTo('/map');
+        onPressed: () {
+        Navigator.of(context, rootNavigator: true).pop(); // Ensure dialog is closed
+        Future.delayed(Duration(milliseconds: 200), () {  // Small delay for smooth transition
+        Provider.of<NavigationProvider>(context, listen: false).navigateTo('/map');
+        });
+        },
 
-              },
               child: const CustomText(text: 'Add Location'),
             ),
           ],

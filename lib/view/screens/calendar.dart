@@ -18,10 +18,11 @@ class _ChooseSlotScreenState extends State<ChooseSlotScreen> {
   String? selectedTimeSlot;
 
   final List<String> timeSlots = [
-    "10:00 - 12:00",
-    "12:00 - 14:00",
-    "14:00 - 16:00",
-    "16:00 - 18:00",
+    "09:00 - 11:00",
+    "11:00 - 13:00",
+    "13:00 - 15:00",
+    "15:00 - 17:00",
+    "17:00 - 19:00"
   ];
 
   Future<void> _selectDate(BuildContext context) async {
@@ -29,7 +30,7 @@ class _ChooseSlotScreenState extends State<ChooseSlotScreen> {
       context: context,
       initialDate: DateTime.now(),
       firstDate: DateTime.now(),
-      lastDate: DateTime.now().add(const Duration(days: 30)),
+      lastDate: DateTime.now().add(const Duration(days: 4)),
       builder: (context, child) {
         return Theme(
           data: ThemeData.light().copyWith(
@@ -52,7 +53,6 @@ class _ChooseSlotScreenState extends State<ChooseSlotScreen> {
       });
     }
   }
-
 
   @override
   Widget build(BuildContext context) {

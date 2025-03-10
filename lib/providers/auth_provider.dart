@@ -12,7 +12,6 @@ import 'location_provider.dart';
   bool _isResendEnabled = false; // ✅ Track OTP Resend State
   TextEditingController phoneController=TextEditingController();
   bool get isLoggedIn => _auth.currentUser != null;
-
   bool get isResendEnabled => _isResendEnabled;
   Future<void> logoutUser(BuildContext context) async {
     final FirebaseAuth auth = FirebaseAuth.instance;

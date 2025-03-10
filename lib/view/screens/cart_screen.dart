@@ -56,7 +56,8 @@ class _CartScreenState extends State<CartScreen> {
         elevation: 0,
         iconTheme: const IconThemeData(color: Colors.black),
       ),
-      body: RefreshIndicator(
+      body:
+      RefreshIndicator(
         onRefresh: _getCurrentUserAndFetchCart,
         child: cartItems.isEmpty
             ? const Center(child: Text("No items in cart"))
@@ -134,15 +135,7 @@ class _CartScreenState extends State<CartScreen> {
                               ],
                             ),
                           ),
-                          IconButton(
-                            icon: const Icon(Icons.delete, color: Colors.red),
-                            onPressed: () async {
-                              if (userId != null) {
-                                await Provider.of<CartProvider>(context, listen: false).deleteCartItem(userId!, item['ProductId']);
-                                _getCurrentUserAndFetchCart();
-                              }
-                            },
-                          ),
+
                         ],
                       ),
                     ),

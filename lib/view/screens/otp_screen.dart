@@ -50,7 +50,7 @@ class _OtpScreenState extends State<OtpScreen> {
     final isSuccess = await authProvider.verifyOTP(otp);
 
     if (isSuccess) {
-      Provider.of<NavigationProvider>(context, listen: false).navigateAndRemoveUntil('/home');
+      Provider.of<NavigationProvider>(context, listen: false).navigateAndRemoveUntil('/map');
     }
 
     ScaffoldMessenger.of(context).showSnackBar(
@@ -97,38 +97,43 @@ class _OtpScreenState extends State<OtpScreen> {
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: List.generate(6, (index) {
-                      return Container(
-                        margin: EdgeInsets.symmetric(horizontal: 4.w),
-                        width: 36.w,
-                        height: 36.h,
-                        decoration: BoxDecoration(
-                          color: Color(0xffD9D9D9),
-                          borderRadius: BorderRadius.circular(50),
-                        ),
-                        child: Center(
-                          child: TextFormField(
-                            controller: otpControllers[index],
-                            keyboardType: TextInputType.number,
-                            textAlignVertical: TextAlignVertical.center,
-                            focusNode: focusNodes[index],
-                            textAlign: TextAlign.center,
-                            maxLength: 1,
-                            style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
-                            decoration: InputDecoration(
-                              counterText: "",
-                              border: InputBorder.none,
-                            ),
-                            onChanged: (value) {
-                              if (value.isNotEmpty && index < 5) {
-                                FocusScope.of(context).requestFocus(focusNodes[index + 1]);
-                              } else if (value.isEmpty && index > 0) {
-                                FocusScope.of(context).requestFocus(focusNodes[index - 1]);
-                              }
-                            },
-                            validator: (value) => value == null || value.isEmpty ? "" : null,
+                      return
+                        Container(
+                          margin: EdgeInsets.symmetric(horizontal: 4.w),
+                          width: 40.w,  // Increase width slightly
+                          height: 40.h,  // Increase height slightly
+                          decoration: BoxDecoration(
+                            color: Color(0xffD9D9D9),
+                            borderRadius: BorderRadius.circular(50),
                           ),
-                        ),
-                      );
+                          child: Center(
+                            child: TextFormField(
+                              controller: otpControllers[index],
+                              keyboardType: TextInputType.number,
+                              focusNode: focusNodes[index],
+                              textAlign: TextAlign.center,
+                              maxLength: 1,
+                              style: TextStyle(
+                                fontSize: 20.sp,  // Make text bigger
+                                fontWeight: FontWeight.bold,
+                              ),
+                              decoration: InputDecoration(
+                                counterText: "",
+                                border: InputBorder.none,
+                                contentPadding: EdgeInsets.zero,  // Ensure no extra padding
+                              ),
+                              onChanged: (value) {
+                                if (value.isNotEmpty && index < 5) {
+                                  FocusScope.of(context).requestFocus(focusNodes[index + 1]);
+                                } else if (value.isEmpty && index > 0) {
+                                  FocusScope.of(context).requestFocus(focusNodes[index - 1]);
+                                }
+                              },
+                              validator: (value) => value == null || value.isEmpty ? "" : null,
+                            ),
+                          ),
+                        );
+
                     }),
                   ),
                 ),
