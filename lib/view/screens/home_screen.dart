@@ -1,5 +1,6 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:need_to_assist/view/screens/cart_screen.dart';
@@ -13,9 +14,7 @@ import '../../providers/location_provider.dart';
 import '../../providers/navigation_provider.dart';
 import '../../providers/service_provider.dart';
 import '../widgets/custom_text_widget.dart';
-
 class HomeScreen extends StatelessWidget {
-
   const HomeScreen({super.key});
   @override
   Widget build(BuildContext context) {
@@ -26,7 +25,7 @@ class HomeScreen extends StatelessWidget {
     ];
     final navigationProvider = Provider.of<NavigationProvider>(context);
     return Scaffold(
-      body: screens[navigationProvider.selectedIndex], // Dynamically switch between screens
+      body: screens[navigationProvider.selectedIndex],
       bottomNavigationBar:
       BottomNavigationBar(iconSize: 40,
         backgroundColor: ColorUtils.background,
@@ -73,27 +72,22 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> {
   final Set<String> expandedCategories = {};
   bool isBooked = false;
-
-
   @override
   void initState() {
     super.initState();
-    Future.microtask(() {
-      Provider.of<LocationProvider>(context, listen: false).loadSavedLocation(context);
-      Provider.of<ServiceProvider>(context, listen: false).fetchServices();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final locationProvider = Provider.of<LocationProvider>(context, listen: false);
+      final serviceProvider = Provider.of<ServiceProvider>(context, listen: false);
+      locationProvider.loadSavedLocation(context);
+      serviceProvider.fetchServices();
     });
   }
-
-
   @override
   Widget build(BuildContext context) {
     final locationProvider = Provider.of<LocationProvider>(context);
     final categoryProvider = Provider.of<CategoryProvider>(context);
-
-    return WillPopScope(
-        onWillPop: () async {
-          return false; // Prevents navigating back to onboarding
-        },
+    return PopScope(
+        canPop: false,
         child:
         Scaffold(
           backgroundColor: ColorUtils.background,
@@ -101,23 +95,23 @@ class _HomePageState extends State<HomePage> {
           AppBar(
             backgroundColor: Color(0xffF9F9F9),
             elevation: 0,
-            leadingWidth: 250, // Increase the width to fit text properly
+            leadingWidth: 250,
             leading: InkWell(
               onTap: () {
                 Provider.of<NavigationProvider>(context, listen: false).navigateTo('/map');
               },
               child: Row(
                 children: [
-                  SizedBox(width: 10), // Adds some spacing from the left edge
+                  SizedBox(width: 10),
                   Icon(Icons.home, size: 24),
-                  SizedBox(width: 5), // Space between icon and text
+                  SizedBox(width: 5),
                   Expanded(
                     child: CustomText(
                       text: locationProvider.currentAddress.isNotEmpty
                           ? locationProvider.currentAddress
                           : "Location Unavailable",
                       maxLines: 1,
-                      overflow: TextOverflow.ellipsis, // Ensures text does not overflow
+                      overflow: TextOverflow.ellipsis,
                       fontWeight: FontWeight.w600,
                       fontSize: 16.sp,
                     ),
@@ -131,7 +125,7 @@ class _HomePageState extends State<HomePage> {
                 builder: (context, snapshot) {
                   if (snapshot.hasData && snapshot.data != null) {
                     return Padding(
-                      padding: EdgeInsets.only(right: 10), // Ensures proper spacing
+                      padding: EdgeInsets.only(right: 10),
                       child: InkWell(
                         onTap: () {
                           Provider.of<NavigationProvider>(context, listen: false).navigateTo('/profile');
@@ -146,11 +140,11 @@ class _HomePageState extends State<HomePage> {
               ),
             ],
           ),
-          body:
-          SingleChildScrollView(
+          body: SingleChildScrollView(
             child: Column(
               children: [
-                SizedBox(height: 2000,
+                SizedBox(
+                  height: 2000,
                   child: Stack(
                     children: [
                       PositionedWidget(
@@ -188,7 +182,7 @@ class _HomePageState extends State<HomePage> {
                         height: 140.h,
                         child:
                         Container(
-                          padding: EdgeInsets.symmetric(vertical: 10.h, horizontal: 5.w), // Added padding
+                          padding: EdgeInsets.symmetric(vertical: 10.h, horizontal: 5.w),
                           decoration: BoxDecoration(
                             color: Color(0xffF5F5F5),
                             borderRadius: BorderRadius.circular(10.r),
@@ -206,9 +200,15 @@ class _HomePageState extends State<HomePage> {
                                 scrollDirection: Axis.horizontal,
                                 physics: BouncingScrollPhysics(),
                                 itemCount: categoryProvider.categories.length,
-                                shrinkWrap: true, // Ensures proper height adjustment
+                                shrinkWrap: true,
                                 itemBuilder: (context, index) {
                                   final category = categoryProvider.categories[index];
+                                  if (kDebugMode) {
+                                    print("Image  ${category.categoryImage}");
+                                  }
+                                  if (kDebugMode) {
+                                    print("Image bg  ${category.backgroundImage}");
+                                  }
                                   return Padding(
                                     padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 5.h),
                                     child: SizedBox(
@@ -273,8 +273,8 @@ class _HomePageState extends State<HomePage> {
                         left: 8.w,
                         child:
                         SizedBox(
-                          width: 370.w, // Adjusted width to fit within the screen properly
-                          height: 230.h, // Ensures proper height for ListView
+                          width: 370.w,
+                          height: 230.h,
                           child: categoryProvider.isLoading
                               ? Center(child: CircularProgressIndicator())
                               : categoryProvider.categories.isEmpty
@@ -283,15 +283,15 @@ class _HomePageState extends State<HomePage> {
                             borderRadius: BorderRadius.circular(10.r),
                             child: Container(
                               decoration: BoxDecoration(
-                                color: ColorUtils.background, // Light background for contrast
+                                color: ColorUtils.background,
                                 borderRadius: BorderRadius.circular(10.r),
                               ),
-                              padding: EdgeInsets.symmetric(horizontal: 5.w, vertical: 5.h), // Added padding
+                              padding: EdgeInsets.symmetric(horizontal: 5.w, vertical: 5.h),
                               child: ListView.builder(
                                 scrollDirection: Axis.horizontal,
                                 physics: BouncingScrollPhysics(),
                                 itemCount: categoryProvider.categories.length,
-                                shrinkWrap: true, // Prevents layout overflow
+                                shrinkWrap: true,
                                 itemBuilder: (context, index) {
                                   final category = categoryProvider.categories[index];
                                   return Padding(
@@ -331,7 +331,7 @@ class _HomePageState extends State<HomePage> {
                                           text: category.categoryName,
                                           fontSize: 12.sp,
                                           fontWeight: FontWeight.w500,
-                                          textAlign: TextAlign.center, // Ensures proper text alignment
+                                          textAlign: TextAlign.center,
                                         ),
                                       ],
                                     ),
@@ -358,8 +358,6 @@ class _HomePageState extends State<HomePage> {
                                 ),
                               );
                             }
-
-                            // Group services by category
                             Map<String, List<Service>> categorizedServices = {};
                             for (var service in serviceProvider.filteredServices) {
                               categorizedServices.putIfAbsent(service.categoryName, () => []).add(service);
@@ -372,7 +370,6 @@ class _HomePageState extends State<HomePage> {
                                 final services = entry.value;
                                 final isExpanded = expandedCategories.contains(categoryName);
                                 final displayedServices = isExpanded ? services : services.take(2).toList();
-
                                 return Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
@@ -393,22 +390,14 @@ class _HomePageState extends State<HomePage> {
                                         return _buildServiceItem(service, context);
                                       },
                                     ),
-
-                                    // "View More" or "View Less" button
                                     if (services.length > 2)
                                       Align(
                                         alignment: Alignment.centerRight
                                         ,child: TextButton(
                                           onPressed: () async{
                                             final serviceProvider = Provider.of<ServiceProvider>(context, listen: false);
-
-                                            // Filter by category
                                             serviceProvider.filterServicesByCategory(categoryName);
-
-                                            // Navigate to booking and reset filter when coming back
                                             await Navigator.pushNamed(context, '/booking');
-
-                                            // Reset to show all services
                                             serviceProvider.resetFilter();
                                           },
                                           child: Text(
@@ -425,7 +414,6 @@ class _HomePageState extends State<HomePage> {
                           },
                         )
                       )
-
                     ],
                   ),
                 ),
@@ -439,7 +427,6 @@ class _HomePageState extends State<HomePage> {
     final cartProvider = Provider.of<CartProvider>(context);
     final productId = service.id;
     final isInCart = cartProvider.quantities.containsKey(productId);
-
     return Padding(
       padding: EdgeInsets.symmetric(vertical: 10.h, horizontal: 1.w),
       child: Container(
@@ -450,7 +437,7 @@ class _HomePageState extends State<HomePage> {
           borderRadius: BorderRadius.circular(9.r),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.2),
+              color: Colors.black.withValues(alpha: 0.2),
               offset: Offset(0, 0),
               blurRadius: 2.r,
             ),
@@ -459,7 +446,6 @@ class _HomePageState extends State<HomePage> {
         ),
         child: Row(
           children: [
-            // Product Image
             ClipRRect(
               borderRadius: BorderRadius.circular(8.r),
               child: CachedNetworkImage(
@@ -473,7 +459,6 @@ class _HomePageState extends State<HomePage> {
             ),
             SizedBox(width: 10.w),
 
-            // Product Details
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -503,7 +488,6 @@ class _HomePageState extends State<HomePage> {
                     ],
                   ),
                   SizedBox(height: 5.h),
-
                   Row(
                     children: [
                       CustomText(
@@ -512,8 +496,6 @@ class _HomePageState extends State<HomePage> {
                         fontWeight: FontWeight.w600,
                       ),
                       Spacer(),
-
-                      // Add / Remove Button
                       GestureDetector(
                         onTap: () {
                           final user = FirebaseAuth.instance.currentUser;
@@ -558,7 +540,7 @@ class _HomePageState extends State<HomePage> {
                   ),
                   SizedBox(height: 5.h),
 
-                  // View Details
+                  /// View Details
                   GestureDetector(
                     onTap: () {
                       Provider.of<NavigationProvider>(
@@ -586,7 +568,6 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-// Snackbar function
   void _showSnackbar(BuildContext context, String message, Color color) {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(

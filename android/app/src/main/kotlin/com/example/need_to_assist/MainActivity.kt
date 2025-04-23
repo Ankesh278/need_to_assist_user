@@ -1,4 +1,5 @@
-package com.example.need_to_assist
+package com.needtoassist.app
+
 
 import io.flutter.embedding.android.FlutterActivity
 

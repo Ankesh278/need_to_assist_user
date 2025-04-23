@@ -184,7 +184,7 @@ class _BookingScreenState extends State<BookingScreen> {
                                             fontWeight: FontWeight.w600,
                                             fontSize: 16.sp,
                                           ),
-                                          SizedBox(height: 8.h),
+                                          SizedBox(height: 7.h),
                                           Row(
                                             children: [
                                               Icon(Icons.star, color: Color(0xff5A5A5A), size: 18.sp),

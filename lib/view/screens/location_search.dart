@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:http/http.dart' as http;
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
@@ -6,18 +7,18 @@ import 'package:need_to_assist/core/constants/app_colors.dart';
 import 'package:need_to_assist/view/widgets/custom_text_formfield.dart';
 import 'package:provider/provider.dart';
 import 'package:uuid/uuid.dart';
-
 import '../../providers/location_provider.dart';
 import '../widgets/custom_text_widget.dart';
 import 'home_screen.dart';
 
 class LocationSearch extends StatefulWidget {
+  const LocationSearch({super.key});
   @override
   State<LocationSearch> createState() => _LocationSearchState();
 }
 
 class _LocationSearchState extends State<LocationSearch> {
-  TextEditingController _searchController = TextEditingController();
+  final TextEditingController _searchController = TextEditingController();
   var uuid = Uuid();
   String _sessionToken = "12345";
   List<dynamic> _placesList = [];
@@ -40,10 +41,9 @@ class _LocationSearchState extends State<LocationSearch> {
   }
 
   void getSuggestions(String query) async {
-    String apiKey = "AIzaSyBUmPinXCwWmhK3SvG4AAAsQfpayru3qKE";
+    String apiKey = dotenv.env['GOOGLE_API_KEY']!;
     String baseUrl = "https://maps.googleapis.com/maps/api/place/autocomplete/json";
     String request = "$baseUrl?input=$query&key=$apiKey&sessiontoken=$_sessionToken";
-
     var response = await http.get(Uri.parse(request));
     if (response.statusCode == 200) {
       setState(() {
@@ -55,14 +55,12 @@ class _LocationSearchState extends State<LocationSearch> {
   }
 
   void getPlaceDetails(String placeId) async {
-    String apiKey = "AIzaSyBUmPinXCwWmhK3SvG4AAAsQfpayru3qKE";
+    String apiKey = dotenv.env['GOOGLE_API_KEY']!;
     String detailsUrl = "https://maps.googleapis.com/maps/api/place/details/json?place_id=$placeId&key=$apiKey";
-
     var response = await http.get(Uri.parse(detailsUrl));
     if (response.statusCode == 200) {
       var result = jsonDecode(response.body)['result'];
       var location = result['geometry']['location'];
-
       setState(() {
         _selectedAddress = result['formatted_address'];
         _selectedPosition = LatLng(location['lat'], location['lng']);
@@ -75,7 +73,6 @@ class _LocationSearchState extends State<LocationSearch> {
   @override
   Widget build(BuildContext context) {
     final locationProvider = Provider.of<LocationProvider>(context, listen: false);
-
     return Scaffold(
       backgroundColor: ColorUtils.background,
       body: SafeArea(
@@ -113,15 +110,13 @@ class _LocationSearchState extends State<LocationSearch> {
               ),
               ElevatedButton(
                 onPressed: () {
-                  if (_selectedPosition != null) { // Replace with actual user ID from Firebase Auth
+                  if (_selectedPosition != null) {
                     locationProvider.updateLocation(
                         _selectedPosition!, _selectedAddress);
                     Navigator.pushReplacement(
                       context,
                       MaterialPageRoute(builder: (context) => HomeScreen()),
                     );
-
-
                   }
                 },style: ElevatedButton.styleFrom(backgroundColor: Color(0xff5A5A5A),shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30))),
                 child: CustomText(

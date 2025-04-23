@@ -28,11 +28,9 @@ class _DetailScreenState extends State<DetailScreen> {
   }
   @override
   Widget build(BuildContext context) {
-
     final cartProvider = Provider.of<CartProvider>(context);
     final productId = service.id;
     final isInCart = cartProvider.quantities.containsKey(productId);
-
     return Scaffold(
       backgroundColor: Color(0xffF9F9FC),
       body: SafeArea(
@@ -165,7 +163,7 @@ class _DetailScreenState extends State<DetailScreen> {
                                         fontWeight: FontWeight.w600,
                                       ),
                                       SizedBox(width: 50.h,),
-                              GestureDetector(
+                                      GestureDetector(
                                 onTap: () {
                                   final user = FirebaseAuth.instance.currentUser;
                                   if (user != null) {

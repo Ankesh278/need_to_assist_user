@@ -4,15 +4,16 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:need_to_assist/models/category.dart';
 
 class CategoryRepository {
-  final String baseUrl = 'http://15.207.112.43:8080/api/product/getcategory';
+  final String baseUrl = 'http://needtoassist.com/api/product/getcategory';
 
   Future<List<Category>> fetchCategories() async {
     try {
       final response = await http.get(Uri.parse(baseUrl));
-
       if (response.statusCode == 200) {
+        print("Status code "+response.statusCode.toString());
+        print("Api   "+baseUrl);
         final data = json.decode(response.body);
-
+        print("APi DATA$data");
         if (data != null && data['category'] != null) {
           final List<dynamic> categoriesJson = data['category'];
           List<Category> categories = categoriesJson.cast<Map<String, dynamic>>()

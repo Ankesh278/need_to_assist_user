@@ -1,17 +1,14 @@
 import 'dart:convert';
-import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
-
 class RepairProcess {
   final String title;
   final String description;
-
   RepairProcess({
     required this.title,
     required this.description,
   });
-
   factory RepairProcess.fromJson(Map<String, dynamic> json) {
     return RepairProcess(
       title: json["title"] ?? "No Title",
@@ -65,7 +62,7 @@ class Service {
   });
 
   factory Service.fromJson(Map<String, dynamic> json) {
-    const String baseUrl = "http://15.207.112.43:8080/";
+    const String baseUrl = "http://needtoassist.com/";
 
     return Service(
       id: json["_id"] ?? "",
@@ -99,14 +96,26 @@ class ServiceProvider with ChangeNotifier {
   List<Service> get filteredServices => _filteredServices;
 
   Future<void> fetchServices() async {
-    final url = Uri.parse("http://15.207.112.43:8080/api/product/getproduct/");
+    String api = "https://needtoassist.com/api/product/getproduct/";
+
+    final url = Uri.parse(api);
+    if (kDebugMode) {
+      print("URL>>>>>>>>>  $api");
+    }
     try {
       final response = await http.get(url);
       if (response.statusCode == 200) {
+        if (kDebugMode) {
+          print("DATA code>>>>>>${response.statusCode}");
+        }
         final data = json.decode(response.body);
-
+        if (kDebugMode) {
+          print("DATAAAA>>>>>>$data");
+        }
         if (data == null || !data.containsKey("products") || data["products"] == null) {
-          print("Error: 'products' key is missing or empty in API response.");
+          if (kDebugMode) {
+            print("Error: 'products' key is missing or empty in API response.");
+          }
           return;
         }
 
@@ -116,15 +125,14 @@ class ServiceProvider with ChangeNotifier {
 
         // Save data locally
         await saveDataLocally(productsList);
-
         notifyListeners();
       } else {
         throw Exception("Failed to load services. Status Code: ${response.statusCode}");
       }
     } catch (error) {
-      print("Error fetching services: $error");
-
-      // Load data from local storage if an error occurs
+      if (kDebugMode) {
+        print("Error fetching services: $error");
+      }
       await loadLocalData();
     }
   }
@@ -144,7 +152,9 @@ class ServiceProvider with ChangeNotifier {
       _filteredServices = List.from(_allServices);
       notifyListeners();
     } else {
-      print("No cached data available.");
+      if (kDebugMode) {
+        print("No cached data available.");
+      }
     }
   }
 
@@ -153,7 +163,7 @@ class ServiceProvider with ChangeNotifier {
     notifyListeners();
   }
   void resetFilter() {
-    _filteredServices = _allServices; // Reset to original list
+    _filteredServices = _allServices;
     notifyListeners();
   }
 }

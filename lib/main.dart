@@ -1,7 +1,10 @@
+import 'dart:io';
 
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:hive_flutter/adapters.dart';
 import 'package:need_to_assist/providers/auth_provider.dart' as local_auth;
@@ -30,17 +33,23 @@ import 'package:provider/provider.dart';
 import 'models/user_model.dart';
 import 'providers/category_provider.dart';
 
-
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Hive.initFlutter();
+  print("📂 Current working directory: ${Directory.current.path}");
+  await dotenv.load(fileName: "assets/.env");
   Hive.registerAdapter(UserModelAdapter());
   await Hive.openBox<UserModel>('userBox');
   if (Firebase.apps.isEmpty) {
     await Firebase.initializeApp();
   }
-
   await PushApi().initNotification();
+  FlutterError.onError = (FlutterErrorDetails details) {
+    FlutterError.presentError(details);
+    if (kDebugMode) {
+      print("Errors $details");
+    }
+  };
 
   runApp(
     MultiProvider(
@@ -54,7 +63,6 @@ void main() async {
         ChangeNotifierProvider(create: (_) => CategoryProvider()..fetchCategories()),
         ChangeNotifierProvider(create: (_)=> ServiceProvider()),
         ChangeNotifierProvider(create: (_) => CartProvider()),
-
       ],
       child: const MyApp(),
     ),
@@ -63,12 +71,10 @@ void main() async {
 
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
-  /// Checks FirebaseAuth for logged-in user
   String _getInitialRoute() {
     final User? user = FirebaseAuth.instance.currentUser;
     return (user != null) ? '/home' : '/';
   }
-
 
   @override
   Widget build(BuildContext context) {
@@ -115,31 +121,28 @@ class MyApp extends StatelessWidget {
                 return MaterialPageRoute(builder: (_) =>  NotificationScreen());
 
               case '/otp':
-                final args = settings.arguments as Map<String, dynamic>;
+                final args = settings.arguments as Map<String, dynamic>? ?? {};
                 return MaterialPageRoute(
                   builder: (_) => OtpScreen(
                     phoneNumber: args['phoneNumber'],
                   ),
                 );
               case '/payment':
-                final args = settings.arguments as Map<String, dynamic>?; // Ensure it's nullable
+                final args = settings.arguments as Map<String, dynamic>?;
                 return MaterialPageRoute(
                   builder: (_) => PaymentScreen(
                     totalCost: (args != null && args.containsKey('totalCost'))
                         ? (args['totalCost'] as num).toDouble()
                         : 0.0,
                     cartId: args?['cartId']??'',
-                    selectedDate: args?['selectedDate'] ?? '', // Ensure non-null value
+                    selectedDate: args?['selectedDate'] ?? '',
                     selectedTimeSlot: args?['selectedTimeSlot'] ?? '',
                   ),
                 );
-
-
               case '/profile':
                 return MaterialPageRoute(builder: (_) => const ProfileScreen());
               case '/search':
                 return MaterialPageRoute(builder: (_) =>  SearchScreen());
-            // Handling DetailScreen with arguments
               case '/detail':
                 final args = settings.arguments as Map<String, dynamic>;
                 return MaterialPageRoute(
@@ -151,7 +154,6 @@ class MyApp extends StatelessWidget {
                 return MaterialPageRoute(builder: (_) => const OnboardingScreen());
             }
           },
-
         );
       },
     );

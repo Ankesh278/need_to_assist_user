@@ -15,9 +15,13 @@ class NavigationProvider extends ChangeNotifier {
     if (navigatorKey.currentState != null) {
       navigatorKey.currentState!.pushNamedAndRemoveUntil(
         routeName,
-            (route) => false, // Removes all previous routes
+            (route) => false,
       );
     }
+  }
+  /// Navigate to a screen and replace the current one
+  void pushReplacement(String routeName, {Object? arguments}) {
+    navigatorKey.currentState?.pushReplacementNamed(routeName, arguments: arguments);
   }
 
   /// Navigate back if possible

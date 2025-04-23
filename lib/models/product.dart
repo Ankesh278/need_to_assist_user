@@ -19,7 +19,7 @@ class Product {
       productName: json['name'].trim(),
       price: json['price'],
       time: json['time'],
-      productImage: 'http://15.207.112.43:8080/${json['image']}',
+      productImage: 'http://needtoassist.com/${json['image']}',
     );
   }
 
@@ -29,7 +29,7 @@ class Product {
       'name': productName,
       'price': price,
       'time': time,
-      'image': productImage.replaceAll('http://15.207.112.43:8080/', ''),
+      'image': productImage.replaceAll('http://needtoassist.com/', ''),
     };
   }
 }

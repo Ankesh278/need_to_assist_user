@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:provider/provider.dart';
 import '../../core/constants/app_colors.dart';
-
 import '../../models/user_model.dart';
 import '../../providers/navigation_provider.dart';
 import '../../providers/user_provider.dart';
@@ -25,7 +24,7 @@ class Registration extends StatelessWidget {
         name: nameController.text,
         email: emailController.text,
         address: addressController.text,
-        phoneNumber: "9120715587", // Replace with actual user phone
+        phoneNumber: "9120715587",
       );
       await userProvider.saveUserData(user);
     }

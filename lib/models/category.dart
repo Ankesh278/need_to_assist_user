@@ -18,8 +18,8 @@ class Category {
       id: json['_id'],
       categoryName: json['categoryName'].trim(),
       categoryDesc: json['categoryDesc'],
-      categoryImage: 'http://15.207.112.43:8080/${json['categoryImage']}',
-      backgroundImage: 'http://15.207.112.43:8080/${json['backgroundImage']}',
+      categoryImage: 'http://needtoassist.com/${json['categoryImage']}',
+      backgroundImage: 'http://needtoassist.com/${json['backgroundImage']}',
     );
   }
 
@@ -28,8 +28,8 @@ class Category {
       '_id': id,
       'categoryName': categoryName,
       'categoryDesc': categoryDesc,
-      'categoryImage': categoryImage.replaceAll('http://15.207.112.43:8080/', ''),
-      'backgroundImage': backgroundImage.replaceAll('http://15.207.112.43:8080/', ''),
+      'categoryImage': categoryImage.replaceAll('http://needtoassist.com/', ''),
+      'backgroundImage': backgroundImage.replaceAll('http://needtoassist.com/', ''),
     };
   }
 }

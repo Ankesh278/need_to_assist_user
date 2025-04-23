@@ -22,7 +22,7 @@ class ProfileViewModel extends ChangeNotifier {
     loadUserProfile();
   }
 
-  // Load user profile from SharedPreferences first, then Firebase
+
   Future<void> loadUserProfile() async {
     final prefs = await SharedPreferences.getInstance();
     String? cachedName = prefs.getString('profile_name');
@@ -37,7 +37,6 @@ class ProfileViewModel extends ChangeNotifier {
     await fetchProfileFromFirebase();
   }
 
-  // Fetch profile from Firebase and update SharedPreferences
   Future<void> fetchProfileFromFirebase() async {
     String uid = _auth.currentUser!.uid;
     DocumentReference userRef = _firestore.collection('users').doc(uid);
@@ -75,9 +74,6 @@ class ProfileViewModel extends ChangeNotifier {
     notifyListeners();
   }
 
-
-
-  // Update profile name and sync with Firebase & SharedPreferences
   Future<void> updateProfileName(String newName) async {
     String uid = _auth.currentUser!.uid;
     DocumentReference userRef = _firestore.collection('users').doc(uid);
@@ -99,8 +95,6 @@ class ProfileViewModel extends ChangeNotifier {
     }
   }
 
-
-  // Pick an image, upload to Firebase Storage, update Firestore & SharedPreferences
   Future<void> updateProfileImage() async {
     final picker = ImagePicker();
     final pickedFile = await picker.pickImage(source: ImageSource.gallery);

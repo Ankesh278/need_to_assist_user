@@ -316,7 +316,7 @@ class _PaymentScreenState extends State<PaymentScreen> {
                                         // Send Data to API
                                         final response = await http.post(
                                           Uri.parse(
-                                              'http://15.207.112.43:8080/api/service/booking'),
+                                              'http://needtoassist.com/api/service/booking'),
                                           // Replace with actual API URL
                                           headers: {
                                             "Content-Type": "application/json"
@@ -351,7 +351,7 @@ class _PaymentScreenState extends State<PaymentScreen> {
 
 
                                   },
-                                  child: Container(width: 233.w,height: 28.h,
+                                  child: Container(width: 233.w,height: 40.h,
                                     decoration: BoxDecoration(borderRadius: BorderRadius.circular(5.r),color: ColorUtils.primaryDark),child: Center(child: CustomText(text: 'Pay ₹ ${finalTotal.toStringAsFixed(0)}',color: ColorUtils.background))
                                   ),
                                 ),

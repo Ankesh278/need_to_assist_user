@@ -29,7 +29,7 @@ class _ServiceScreenState extends State<ServiceScreen> {
   }
 
   Future<void> _fetchServices() async {
-    final url = Uri.parse("http://15.207.112.43:8080/api/product/getproduct"); // Replace with API URL
+    final url = Uri.parse("http://needtoassist.com/api/product/getproduct"); // Replace with API URL
     final response = await http.get(url);
 
     if (response.statusCode == 200) {
@@ -92,7 +92,7 @@ class _ServiceScreenState extends State<ServiceScreen> {
                     child: ClipRRect(
                       borderRadius: BorderRadius.circular(9.r),
                       child: Image.network(
-                        'http://15.207.112.43:8080/${service['image']}',
+                        'http://needtoassist.com/${service['image']}',
                         fit: BoxFit.contain,
                         errorBuilder: (context, error, stackTrace) =>
                             Image.asset('assets/images/default.png', fit: BoxFit.cover),

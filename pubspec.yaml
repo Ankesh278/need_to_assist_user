@@ -23,17 +23,18 @@ dependencies:
   permission_handler: ^11.3.1
   cloud_firestore: ^5.6.2
   shared_preferences: ^2.5.1
-  uuid:
-  geolocator_android:
+  uuid: ^4.5.1
   hive: ^2.2.3
   hive_flutter: ^1.1.0
-  firebase_storage:
-  image_picker:
-  firebase_messaging:
+  firebase_storage: ^12.4.5
+  image_picker: ^1.1.2
+  firebase_messaging: ^15.2.5
   cached_network_image: ^3.3.0
   flutter_cache_manager: ^3.3.1
-  get:
-  intl:
+  get: ^4.7.2
+  intl: ^0.20.2
+  flutter_native_splash: ^2.4.4
+  flutter_dotenv: ^5.2.1
 
 
 
@@ -43,7 +44,7 @@ dev_dependencies:
   flutter_test:
     sdk: flutter
   flutter_lints: ^5.0.0
-  build_runner:
+  build_runner: ^2.4.8
   hive_generator: ^2.0.1
   flutter_launcher_icons: ^0.14.3
 
@@ -58,6 +59,7 @@ flutter:
 
   assets:
     - assets/images/home_screen/services/
+    - assets/.env
     - assets/images/home_screen/repairing/
     - assets/images/home_screen/card1/
     - assets/images/home_screen/card2/
@@ -72,6 +74,17 @@ flutter:
     - assets/images/details_screen/
     - assets/images/default.png
   fonts:
-   - family: Inter
-     fonts:
-       - asset: assets/fonts/inter.ttf
+    - family: Inter
+      fonts:
+        - asset: assets/fonts/inter.ttf
+flutter_native_splash:
+  color: "#ffffff"
+  image: assets/icon/icon.png
+  android: true
+  ios: true
+  web: false
+
+  android_12:
+    image: assets/icon/icon.png
+    icon_background_color: "#ffffff"
+    color: "#ffffff"
