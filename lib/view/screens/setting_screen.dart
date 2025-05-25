@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:need_to_assist/view/screens/user_linked_page.dart';
 import 'package:provider/provider.dart';
 
 import 'package:need_to_assist/providers/auth_provider.dart';
@@ -9,10 +10,10 @@ class SettingsScreen extends StatefulWidget {
   const SettingsScreen({super.key});
 
   @override
-  _SettingsScreenState createState() => _SettingsScreenState();
+  SettingsScreenState createState() => SettingsScreenState();
 }
 
-class _SettingsScreenState extends State<SettingsScreen> {
+class SettingsScreenState extends State<SettingsScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -35,7 +36,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
         padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 10.h),
         child: Column(
           children: [
-            _buildSettingsTile('Linked Accounts', Icons.account_circle, onTap: () {}),
+            _buildSettingsTile('Linked Accounts',Icons.account_circle, onTap: () {
+              Navigator.push(context, MaterialPageRoute(builder: (context)=>NeoUserProfilePage()));
+            }),
           ],
         ),
       ),

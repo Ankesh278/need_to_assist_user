@@ -80,6 +80,12 @@ class _HomePageState extends State<HomePage> {
       final serviceProvider = Provider.of<ServiceProvider>(context, listen: false);
       locationProvider.loadSavedLocation(context);
       serviceProvider.fetchServices();
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        final user = FirebaseAuth.instance.currentUser;
+        if (user != null) {
+          Provider.of<CartProvider>(context, listen: false).fetchCartProducts(user.uid);
+        }
+      });
     });
   }
   @override
@@ -362,7 +368,6 @@ class _HomePageState extends State<HomePage> {
                             for (var service in serviceProvider.filteredServices) {
                               categorizedServices.putIfAbsent(service.categoryName, () => []).add(service);
                             }
-
                             return ListView(
                               physics: NeverScrollableScrollPhysics(),
                               children: categorizedServices.entries.map((entry) {
@@ -380,7 +385,6 @@ class _HomePageState extends State<HomePage> {
                                         style: TextStyle(fontSize: 18.sp, fontWeight: FontWeight.bold),
                                       ),
                                     ),
-
                                     ListView.builder(
                                       physics: NeverScrollableScrollPhysics(),
                                       shrinkWrap: true,
@@ -458,7 +462,6 @@ class _HomePageState extends State<HomePage> {
               ),
             ),
             SizedBox(width: 10.w),
-
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -470,7 +473,6 @@ class _HomePageState extends State<HomePage> {
                     fontSize: 16.sp,
                   ),
                   SizedBox(height: 8.h),
-
                   Row(
                     children: [
                       Icon(Icons.star, color: Color(0xff5A5A5A), size: 18.sp),
@@ -503,7 +505,7 @@ class _HomePageState extends State<HomePage> {
                           {
                             if (isInCart) {
                               cartProvider.removeFromCart(context, user.uid, productId);
-                              _showSnackbar(context, 'Item removed from cart', Colors.red);
+                              _showSnackBar(context, 'Item removed from cart', Colors.red);
                             } else {
                               cartProvider.addToCart(context, {
                                 'id': service.id,
@@ -512,7 +514,7 @@ class _HomePageState extends State<HomePage> {
                                 'categoryName': service.categoryName,
                                 'image': service.image,
                               });
-                              _showSnackbar(context, 'Item added to cart', Colors.green);
+                              _showSnackBar(context, 'Item added to cart', Colors.green);
                             }
                           }
                           else{
@@ -539,7 +541,6 @@ class _HomePageState extends State<HomePage> {
                     ],
                   ),
                   SizedBox(height: 5.h),
-
                   /// View Details
                   GestureDetector(
                     onTap: () {
@@ -568,7 +569,7 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  void _showSnackbar(BuildContext context, String message, Color color) {
+  void _showSnackBar(BuildContext context, String message, Color color) {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text(

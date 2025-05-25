@@ -1,4 +1,6 @@
 import 'dart:async';
+import 'dart:convert';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:need_to_assist/view/widgets/custom_text_widget.dart';
@@ -7,29 +9,28 @@ import '../../core/constants/app_colors.dart';
 import '../../core/utils/keyboard_utils.dart';
 import '../../providers/auth_provider.dart';
 import '../../providers/navigation_provider.dart';
+import 'package:http/http.dart'as http;
 
+import '../../providers/user_provider.dart';
 class OtpScreen extends StatefulWidget {
   final String phoneNumber;
   const OtpScreen({super.key, required this.phoneNumber});
-
   @override
-  _OtpScreenState createState() => _OtpScreenState();
+  OtpScreenState createState() => OtpScreenState();
 }
 
-class _OtpScreenState extends State<OtpScreen> {
+class OtpScreenState extends State<OtpScreen> {
   final _formKey = GlobalKey<FormState>();
   final List<TextEditingController> otpControllers = List.generate(6, (_) => TextEditingController());
   final List<FocusNode> focusNodes = List.generate(6, (_) => FocusNode());
   int remainingTime = 30;
   Timer? timer;
-
   @override
   void initState() {
     super.initState();
     Future.microtask(() => Provider.of<AuthProvider>(context, listen: false).sendOTP(widget.phoneNumber, context: context));
     startTimer();
   }
-
   void startTimer() {
     timer = Timer.periodic(Duration(seconds: 1), (timer) {
       if (remainingTime > 0) {
@@ -46,17 +47,60 @@ class _OtpScreenState extends State<OtpScreen> {
     if (!_formKey.currentState!.validate()) return;
 
     final otp = otpControllers.map((controller) => controller.text).join();
+    print("Entered OTP: $otp");
+
     final authProvider = Provider.of<AuthProvider>(context, listen: false);
-    final isSuccess = await authProvider.verifyOTP(otp);
-
-    if (isSuccess) {
-      Provider.of<NavigationProvider>(context, listen: false).navigateAndRemoveUntil('/map');
-    }
-
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text(isSuccess ? 'OTP Verified!' : 'Invalid OTP')),
+    final (user, idToken) = await authProvider.verifyOTP(
+      otp,
+      onError: (msg) {
+        print("OTP Verification Error: $msg");
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(msg)));
+      },
     );
+
+    if (user != null && idToken != null) {
+      final phone = user.phoneNumber ?? '';
+      final uid = user.uid;
+      String api = "https://needtoassist.com/api/user/userverify";
+      final response = await http.post(
+        Uri.parse(api),
+        headers: {'Content-Type': 'application/json'},
+        body: jsonEncode({'phone': phone, 'idToken': idToken}),
+      );
+
+      print("Api Response Code: ${response.statusCode}");
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body);
+        print("Response data: $data");
+
+        final isRegistered = data['loggedIn'] == true && data['user'] != null;
+        final userProvider = Provider.of<UserProvider>(context, listen: false);
+        await userProvider.saveTokenUser(uid: uid, token: idToken);
+
+        final nav = Provider.of<NavigationProvider>(context, listen: false);
+        if (isRegistered) {
+          nav.navigateAndRemoveUntil('/map');
+        } else {
+          nav.navigateAndRemoveUntil('/registration', arguments: {'phone': phone});
+        }
+
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('OTP Verified!')),
+        );
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Server error. Try again later.')),
+        );
+        await authProvider.logoutUser(context);
+      }
+    } else {
+      // Don’t log out unless _verificationId was valid
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Invalid OTP')),
+      );
+    }
   }
+
 
   @override
   void dispose() {
@@ -100,8 +144,8 @@ class _OtpScreenState extends State<OtpScreen> {
                       return
                         Container(
                           margin: EdgeInsets.symmetric(horizontal: 4.w),
-                          width: 40.w,  // Increase width slightly
-                          height: 40.h,  // Increase height slightly
+                          width: 40.w,
+                          height: 40.h,
                           decoration: BoxDecoration(
                             color: Color(0xffD9D9D9),
                             borderRadius: BorderRadius.circular(50),
@@ -114,13 +158,13 @@ class _OtpScreenState extends State<OtpScreen> {
                               textAlign: TextAlign.center,
                               maxLength: 1,
                               style: TextStyle(
-                                fontSize: 20.sp,  // Make text bigger
+                                fontSize: 20.sp,
                                 fontWeight: FontWeight.bold,
                               ),
                               decoration: InputDecoration(
                                 counterText: "",
                                 border: InputBorder.none,
-                                contentPadding: EdgeInsets.zero,  // Ensure no extra padding
+                                contentPadding: EdgeInsets.zero,
                               ),
                               onChanged: (value) {
                                 if (value.isNotEmpty && index < 5) {
@@ -133,7 +177,6 @@ class _OtpScreenState extends State<OtpScreen> {
                             ),
                           ),
                         );
-
                     }),
                   ),
                 ),
@@ -152,7 +195,7 @@ class _OtpScreenState extends State<OtpScreen> {
                             startTimer();
                           });
                         }
-                            : null,
+                        : null,
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [

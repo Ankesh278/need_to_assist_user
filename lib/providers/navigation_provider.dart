@@ -11,14 +11,16 @@ class NavigationProvider extends ChangeNotifier {
   }
 
   /// Navigate to a new screen and remove previous screens from the stack
-  void navigateAndRemoveUntil(String routeName) {
+  void navigateAndRemoveUntil(String routeName, {Object? arguments}) {
     if (navigatorKey.currentState != null) {
       navigatorKey.currentState!.pushNamedAndRemoveUntil(
         routeName,
             (route) => false,
+        arguments: arguments,
       );
     }
   }
+
   /// Navigate to a screen and replace the current one
   void pushReplacement(String routeName, {Object? arguments}) {
     navigatorKey.currentState?.pushReplacementNamed(routeName, arguments: arguments);

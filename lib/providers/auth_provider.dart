@@ -13,6 +13,7 @@ import 'location_provider.dart';
   TextEditingController phoneController=TextEditingController();
   bool get isLoggedIn => _auth.currentUser != null;
   bool get isResendEnabled => _isResendEnabled;
+
   Future<void> logoutUser(BuildContext context) async {
     final FirebaseAuth auth = FirebaseAuth.instance;
     await auth.signOut();
@@ -31,14 +32,13 @@ import 'location_provider.dart';
     // Navigate to login screen
     Navigator.pushReplacementNamed(context, "/login");
   }
-
   User? _user;
   User? get user => _user;
 
   AuthProvider() {
     _auth.authStateChanges().listen((User? user) {
       _user = user;
-      notifyListeners(); // Update UI whenever auth state changes
+      notifyListeners();
     });
   }
 
@@ -57,11 +57,9 @@ import 'location_provider.dart';
     final formattedNumber = phoneNumber.startsWith("+91") ? phoneNumber : "+91$phoneNumber";
 
     try {
-      // Show a snackbar when reCAPTCHA starts
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Loading reCAPTCHA, please wait...')),
       );
-
       await _auth.verifyPhoneNumber(
         phoneNumber: formattedNumber,
         verificationCompleted: (PhoneAuthCredential credential) async {
@@ -77,7 +75,7 @@ import 'location_provider.dart';
         },
         codeSent: (String verificationId, int? resendToken) {
           _verificationId = verificationId;
-          _isResendEnabled = false; // ✅ Disable Resend Initially
+          _isResendEnabled = false;
           notifyListeners();
 
           ScaffoldMessenger.of(context).showSnackBar(
@@ -88,7 +86,7 @@ import 'location_provider.dart';
         },
         codeAutoRetrievalTimeout: (String verificationId) {
           _verificationId = verificationId;
-          _isResendEnabled = true; // ✅ Enable Resend After Timeout
+          _isResendEnabled = true;
           notifyListeners();
         },
       );
@@ -101,28 +99,29 @@ import 'location_provider.dart';
     }
   }
 
-  Future<bool> verifyOTP(String otp, {Function(String)? onError}) async {
-  if (_verificationId == null) {
-  onError?.call("Verification ID is null. Please request OTP again.");
-  return false;
+  Future<(User?, String?)> verifyOTP(String otp, {Function(String)? onError}) async {
+    if (_verificationId == null) {
+      onError?.call("Verification ID is null. Please request OTP again.");
+      return (null, null);
+    }
+    try {
+      final credential = PhoneAuthProvider.credential(
+        verificationId: _verificationId!,
+        smsCode: otp,
+      );
+      final userCredential = await _auth.signInWithCredential(credential);
+      final user = userCredential.user;
+      final idToken = await user?.getIdToken();
+      return (user, idToken);
+    } on FirebaseAuthException catch (e) {
+      debugPrint('Firebase Error: ${e.message}');
+      onError?.call(e.message ?? "OTP verification failed");
+      return (null, null);
+    } catch (e) {
+      debugPrint('Unknown error verifying OTP: $e');
+      onError?.call("Unknown error verifying OTP");
+      return (null, null);
+    }
   }
 
-  try {
-  final credential = PhoneAuthProvider.credential(
-  verificationId: _verificationId!,
-  smsCode: otp,
-  );
-
-  await _auth.signInWithCredential(credential);
-  return true; // ✅ OTP verified successfully
-  } on FirebaseAuthException catch (e) {
-  debugPrint('Firebase Error: ${e.message}');
-  onError?.call(e.message ?? "OTP verification failed");
-  return false;
-  } catch (e) {
-  debugPrint('Unknown error verifying OTP: $e');
-  onError?.call("Unknown error verifying OTP");
-  return false;
-  }
-  }
   }

@@ -1,5 +1,4 @@
 import 'dart:io';
-
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/foundation.dart';
@@ -16,6 +15,7 @@ import 'package:need_to_assist/providers/service_provider.dart';
 import 'package:need_to_assist/providers/user_provider.dart';
 import 'package:need_to_assist/push_notification_api.dart';
 import 'package:need_to_assist/view/screens/booking_screen.dart';
+import 'package:need_to_assist/view/screens/chat_screen.dart';
 import 'package:need_to_assist/view/screens/detail_screen.dart';
 import 'package:need_to_assist/view/screens/home_screen.dart';
 import 'package:need_to_assist/view/screens/location_search.dart';
@@ -26,6 +26,7 @@ import 'package:need_to_assist/view/screens/onboarding_screen.dart';
 import 'package:need_to_assist/view/screens/otp_screen.dart';
 import 'package:need_to_assist/view/screens/payment_screen.dart';
 import 'package:need_to_assist/view/screens/profile_screen.dart';
+import 'package:need_to_assist/view/screens/registration.dart';
 import 'package:need_to_assist/view/screens/search_screen.dart';
 import 'package:need_to_assist/view/screens/service_detail.dart';
 import 'package:need_to_assist/viewModel/profile_viewmodel.dart';
@@ -54,6 +55,7 @@ void main() async {
   runApp(
     MultiProvider(
       providers: [
+        ChangeNotifierProvider(create: (_) => CartProvider()),
         ChangeNotifierProvider(create: (_) => NavigationProvider()),
         ChangeNotifierProvider(create: (_) =>local_auth.AuthProvider()),
         ChangeNotifierProvider(create: (_) => OnboardingProvider()),
@@ -62,7 +64,7 @@ void main() async {
         ChangeNotifierProvider(create: (_)=> LocationProvider()),
         ChangeNotifierProvider(create: (_) => CategoryProvider()..fetchCategories()),
         ChangeNotifierProvider(create: (_)=> ServiceProvider()),
-        ChangeNotifierProvider(create: (_) => CartProvider()),
+
       ],
       child: const MyApp(),
     ),
@@ -96,6 +98,13 @@ class MyApp extends StatelessWidget {
 
               case '/login':
                 return MaterialPageRoute(builder: (_) => const LoginPage());
+              case '/registration':
+                final args = settings.arguments as Map<String, dynamic>? ?? {};
+                return MaterialPageRoute(
+                  builder: (_) => Registration(
+                    phone: args['phone'],
+                  ),
+                );
 
               case '/home':
                 return MaterialPageRoute(builder: (_) =>  HomeScreen());
@@ -143,6 +152,11 @@ class MyApp extends StatelessWidget {
                 return MaterialPageRoute(builder: (_) => const ProfileScreen());
               case '/search':
                 return MaterialPageRoute(builder: (_) =>  SearchScreen());
+              case '/chat':
+                final args = settings.arguments as Map<String, dynamic>;
+                return MaterialPageRoute(
+                  builder: (_) => ChatPage(userId: args['userId']),
+                );
               case '/detail':
                 final args = settings.arguments as Map<String, dynamic>;
                 return MaterialPageRoute(
@@ -150,6 +164,7 @@ class MyApp extends StatelessWidget {
                     service: args['service'],
                   ),   
                 );
+
               default:
                 return MaterialPageRoute(builder: (_) => const OnboardingScreen());
             }

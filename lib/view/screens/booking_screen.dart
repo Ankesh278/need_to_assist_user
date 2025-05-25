@@ -1,12 +1,8 @@
-import 'dart:convert';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:http/http.dart' as http;
 import 'package:need_to_assist/core/constants/app_colors.dart';
-import 'package:need_to_assist/view/screens/cart_screen.dart';
-import 'package:need_to_assist/view/screens/login_screen.dart';
 import 'package:provider/provider.dart';
 import '../../providers/cart_provider.dart';
 import '../../providers/navigation_provider.dart';
@@ -15,21 +11,15 @@ import '../widgets/custom_position_widget.dart';
 import '../widgets/custom_text_widget.dart';
 
 class BookingScreen extends StatefulWidget {
-
   const BookingScreen({super.key,});
   @override
   State<BookingScreen> createState() => _BookingScreenState();
 }
 class _BookingScreenState extends State<BookingScreen> {
 
-
-
-
   @override
   Widget build(BuildContext context) {
-    final filteredServices = Provider
-        .of<ServiceProvider>(context)
-        .filteredServices;
+    final filteredServices = Provider.of<ServiceProvider>(context).filteredServices;
     return Scaffold(
       backgroundColor: Color(0xffF9F9FC),
       body: SafeArea(
@@ -153,7 +143,7 @@ class _BookingScreenState extends State<BookingScreen> {
                                   borderRadius: BorderRadius.circular(9.r),
                                   boxShadow: [
                                     BoxShadow(
-                                      color: Colors.black.withOpacity(0.2),
+                                      color: Colors.black.withValues(alpha:0.2),
                                       offset: Offset(0, 0),
                                       blurRadius: 2.r,
                                     ),
